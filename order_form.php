@@ -32,8 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Валидация и очистка данных
     $full_name = trim($_POST['full_name'] ?? '');
     $home_address = trim($_POST['home_address'] ?? '');
-    $recipient_name = trim($_POST['recipient_name'] ?? '');
-    $recipient_address = trim($_POST['recipient_address'] ?? '');
     $weight = floatval($_POST['weight'] ?? 0);
     $carrier_id = intval($_POST['carrier'] ?? 0);
     $from_office = intval($_POST['from_office'] ?? 0);
@@ -46,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comment = trim($_POST['comment'] ?? '');
 
     // Валидация обязательных полей
-    if (empty($full_name) || empty($home_address) || empty($recipient_name) || empty($recipient_address) || $weight <= 0 || $carrier_id <= 0 || $from_office <= 0 || $to_office <= 0) {
+    if (empty($full_name) || empty($home_address) || $weight <= 0 || $carrier_id <= 0 || $from_office <= 0 || $to_office <= 0) {
         $error = "Пожалуйста, заполните все обязательные поля!";
     } else {
         try {
@@ -138,14 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array('tracking_status', $existing_columns)) {
                 $update_fields[] = "tracking_status = ?";
                 $update_values[] = 'Создан';
-            }
-            if (in_array('recipient_name', $existing_columns)) {
-                $update_fields[] = "recipient_name = ?";
-                $update_values[] = $recipient_name;
-            }
-            if (in_array('recipient_address', $existing_columns)) {
-                $update_fields[] = "recipient_address = ?";
-                $update_values[] = $recipient_address;
             }
             
             if (!empty($update_fields)) {
@@ -291,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <div class="row">
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">ФИО отправителя <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">ФИО <span class="text-danger">*</span></label>
                                 <input type="text" name="full_name" class="form-control" required 
                                        placeholder="Иванов Иван Иванович" 
                                        value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
@@ -300,56 +290,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">Домашний адрес отправителя <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Домашний адрес <span class="text-danger">*</span></label>
                                 <textarea name="home_address" class="form-control" rows="2" required 
                                           placeholder="Укажите ваш постоянный адрес проживания"><?= htmlspecialchars($_POST['home_address'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- Данные получателя -->
-                    <div class="form-section">
-                        <h4 class="section-title">Данные получателя</h4>
-                        
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">ФИО получателя <span class="text-danger">*</span></label>
-                                <input type="text" name="recipient_name" class="form-control" required 
-                                       placeholder="Иванов Иван Иванович" 
-                                       value="<?= htmlspecialchars($_POST['recipient_name'] ?? '') ?>">
-                            </div>
-                        </div>
-                        
-                        <div class="row mt-3">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Адрес получателя <span class="text-danger">*</span></label>
-                                <textarea name="recipient_address" class="form-control" rows="2" required 
-                                          placeholder="Адрес, по которому получатель заберет посылку"><?= htmlspecialchars($_POST['recipient_address'] ?? '') ?></textarea>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Выбор оператора -->
-                    <div class="form-section">
-                        <h4 class="section-title">Выбор оператора</h4>
-                        
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Служба доставки <span class="text-danger">*</span></label>
-                                <select name="carrier" class="form-select" required onchange="loadOffices(this.value)">
-                                    <option value="">Выберите службу доставки</option>
-                                    <?php foreach($carriers as $carrier): ?>
-                                        <option value="<?= $carrier['id'] ?>" 
-                                            <?= (isset($_POST['carrier']) && $_POST['carrier'] == $carrier['id']) ? 'selected' : (isset($preselected_carrier) && $preselected_carrier == $carrier['id'] ? 'selected' : '') ?>>
-                                            <?= htmlspecialchars($carrier['name']) ?> (до <?= $carrier['max_weight'] ?> кг)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Информация о доставке -->
+
+                    <!-- Выбор офисов -->
                     <div class="form-section">
                         <h4 class="section-title">Информация о доставке</h4>
                         
@@ -360,17 +308,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Отделение получения <span class="text-danger">*</span></label>
-                                <select name="from_office" id="from_office" class="form-select" required disabled>
-                                    <option value="">Сначала выберите оператора</option>
+                                <select name="from_office" class="form-select" required>
+                                    <option value="">Выберите отделение</option>
+                                    <?php 
+                                    $offices = $db->query("SELECT o.*, c.name as carrier_name FROM offices o LEFT JOIN carriers c ON o.carrier_id = c.id ORDER BY c.name, o.city")->fetchAll();
+                                    foreach($offices as $office): 
+                                    ?>
+                                        <option value="<?= $office['id'] ?>" <?= ($preselected_from_office == $office['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($office['carrier_name']) ?>, <?= htmlspecialchars($office['city']) ?> — <?= htmlspecialchars($office['address']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
-                                <div class="form-text">Поиск отделений после выбора оператора</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Отделение доставки <span class="text-danger">*</span></label>
-                                <select name="to_office" id="to_office" class="form-select" required disabled>
-                                    <option value="">Сначала выберите оператора</option>
+                                <select name="to_office" class="form-select" required>
+                                    <option value="">Выберите отделение</option>
+                                    <?php foreach($offices as $office): ?>
+                                        <option value="<?= $office['id'] ?>" <?= ($preselected_to_office == $office['id']) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($office['carrier_name']) ?>, <?= htmlspecialchars($office['city']) ?> — <?= htmlspecialchars($office['address']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
-                                <div class="form-text">Поиск отделений после выбора оператора</div>
                             </div>
                         </div>
                     </div>
@@ -489,177 +448,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Function to load offices based on selected carrier
-function loadOffices(carrierId) {
-    if (!carrierId) {
-        // Reset and disable the office selects
-        document.getElementById('from_office').innerHTML = '<option value="">Сначала выберите оператора</option>';
-        document.getElementById('from_office').disabled = true;
-        document.getElementById('to_office').innerHTML = '<option value="">Сначала выберите оператора</option>';
-        document.getElementById('to_office').disabled = true;
-        return;
-    }
-    
-    // Enable the office selects
-    document.getElementById('from_office').disabled = false;
-    document.getElementById('to_office').disabled = false;
-    
-    // Load offices via AJAX
-    fetch('get_offices.php?carrier=' + carrierId)
-        .then(response => response.json())
-        .then(data => {
-            // Populate from_office select
-            const fromSelect = document.getElementById('from_office');
-            fromSelect.innerHTML = '<option value="">Выберите отделение</option>';
-            data.forEach(office => {
-                const option = document.createElement('option');
-                option.value = office.id;
-                option.textContent = office.city + ' — ' + office.address;
-                fromSelect.appendChild(option);
-            });
-            
-            // Populate to_office select
-            const toSelect = document.getElementById('to_office');
-            toSelect.innerHTML = '<option value="">Выберите отделение</option>';
-            data.forEach(office => {
-                const option = document.createElement('option');
-                option.value = office.id;
-                option.textContent = office.city + ' — ' + office.address;
-                toSelect.appendChild(option);
-            });
-            
-            // Add search functionality to the selects
-            addSearchToSelect(fromSelect);
-            addSearchToSelect(toSelect);
-        })
-        .catch(error => {
-            console.error('Error loading offices:', error);
-        });
-}
-
-// Add search functionality to select elements
-function addSearchToSelect(selectElement) {
-    // Remove any existing wrapper to avoid duplication
-    if (selectElement.parentNode && selectElement.parentNode.classList.contains('custom-select-wrapper')) {
-        // If it's already wrapped, remove the wrapper and restore the original select
-        const wrapper = selectElement.parentNode;
-        const parent = wrapper.parentNode;
-        parent.replaceChild(selectElement, wrapper);
-        selectElement.style.display = 'block'; // Show the original select again
-    }
-    
-    // Create a wrapper div for the custom select
-    const wrapper = document.createElement('div');
-    wrapper.className = 'custom-select-wrapper';
-    wrapper.style.position = 'relative';
-    
-    // Create input for search
-    const searchInput = document.createElement('input');
-    searchInput.type = 'text';
-    searchInput.className = 'form-control';
-    searchInput.placeholder = 'Поиск отделения...';
-    searchInput.style.marginBottom = '5px';
-    searchInput.style.cursor = 'pointer';
-    searchInput.readOnly = false; // Allow typing for search functionality
-    
-    // Create a dropdown container that's initially hidden
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.style.position = 'absolute';
-    dropdownContainer.style.top = '40px';
-    dropdownContainer.style.left = '0';
-    dropdownContainer.style.width = '100%';
-    dropdownContainer.style.zIndex = '1000';
-    dropdownContainer.style.backgroundColor = 'white';
-    dropdownContainer.style.border = '1px solid #ced4da';
-    dropdownContainer.style.borderRadius = '0.375rem';
-    dropdownContainer.style.maxHeight = '200px';
-    dropdownContainer.style.overflowY = 'auto';
-    dropdownContainer.style.display = 'none'; // Initially hidden
-    dropdownContainer.style.boxShadow = '0 0.5rem 1rem rgba(0,0,0,0.15)';
-    
-    // Add click event to toggle dropdown visibility
-    searchInput.addEventListener('click', function(e) {
-        e.stopPropagation();
-        const isHidden = dropdownContainer.style.display === 'none';
-        dropdownContainer.style.display = isHidden ? 'block' : 'none';
-        
-        // If showing, populate with all options
-        if (isHidden) {
-            updateDropdownOptions(selectElement, '');
-        }
-    });
-    
-    // Populate dropdown with options
-    function updateDropdownOptions(originalSelect, searchTerm = '') {
-        dropdownContainer.innerHTML = '';
-        const options = Array.from(originalSelect.options);
-        
-        options.forEach(option => {
-            if (option.value === '') return; // Skip empty option
-            
-            const optionText = option.text.toLowerCase();
-            if (searchTerm === '' || optionText.includes(searchTerm.toLowerCase())) {
-                const optionElement = document.createElement('div');
-                optionElement.textContent = option.text;
-                optionElement.style.padding = '8px 12px';
-                optionElement.style.cursor = 'pointer';
-                optionElement.style.borderBottom = '1px solid #eee';
-                
-                optionElement.addEventListener('click', function() {
-                    originalSelect.value = option.value;
-                    searchInput.value = option.text;
-                    dropdownContainer.style.display = 'none';
-                    
-                    // Trigger change event on the original select
-                    originalSelect.dispatchEvent(new Event('change'));
-                });
-                
-                optionElement.addEventListener('mouseover', function() {
-                    this.style.backgroundColor = '#f8f9fa';
-                });
-                
-                optionElement.addEventListener('mouseout', function() {
-                    this.style.backgroundColor = 'white';
-                });
-                
-                dropdownContainer.appendChild(optionElement);
-            }
-        });
-    }
-    
-    // Add search event
-    searchInput.addEventListener('input', function() {
-        const searchTerm = this.value;
-        updateDropdownOptions(selectElement, searchTerm);
-        
-        // Show dropdown when searching
-        dropdownContainer.style.display = 'block';
-    });
-    
-    // Replace the select with the wrapper
-    selectElement.parentNode.insertBefore(wrapper, selectElement);
-    wrapper.appendChild(searchInput);
-    wrapper.appendChild(dropdownContainer);
-    
-    // Hide the original select
-    selectElement.style.display = 'none';
-    
-    // Initialize with the currently selected value
-    if (selectElement.value) {
-        const selectedOption = selectElement.options[selectElement.selectedIndex];
-        if (selectedOption) {
-            searchInput.value = selectedOption.text;
-        }
-    }
-    
-    // Add global click listener to close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
-        if (!wrapper.contains(e.target)) {
-            dropdownContainer.style.display = 'none';
-        }
-    });
-}
-
 // Apply saved theme on page load
 document.addEventListener('DOMContentLoaded', function() {
     const savedTheme = localStorage.getItem('theme');
@@ -677,12 +465,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
-    // Initialize office loading if carrier is already selected
-    const carrierSelect = document.querySelector('select[name="carrier"]');
-    if (carrierSelect && carrierSelect.value) {
-        loadOffices(carrierSelect.value);
-    }
 });
 </script>
 </body>
