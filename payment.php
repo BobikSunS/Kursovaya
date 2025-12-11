@@ -128,10 +128,10 @@ $carrier = $carrier_stmt->fetch();
             <?php if ($success): ?>
                 <!-- Payment success message -->
                 <div class="card bg-success text-white text-center p-5 mb-5">
-                    <h2>Платеж подтвержден!</h2>
-                    <p class="lead">Ваш заказ №<?= htmlspecialchars($order['track_number']) ?> оплачен и принят в обработку</p>
+                    <h2 class="text-white">Платеж подтвержден!</h2>
+                    <p class="lead text-white">Ваш заказ №<?= htmlspecialchars($order['track_number']) ?> оплачен и принят в обработку</p>
                     <h3 class="text-warning"><?= number_format($order['cost'], 2) ?> BYN</h3>
-                    <p>Спасибо за доверие к нашей службе доставки!</p>
+                    <p class="text-white">Спасибо за доверие к нашей службе доставки!</p>
                     <a href="history.php" class="btn btn-light btn-lg mt-3">Перейти в историю заказов</a>
                 </div>
             <?php else: ?>
