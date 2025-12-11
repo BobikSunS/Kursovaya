@@ -456,6 +456,7 @@ function addSearchToSelect(selectElement) {
         const wrapper = selectElement.parentNode;
         const parent = wrapper.parentNode;
         parent.replaceChild(selectElement, wrapper);
+        selectElement.style.display = 'block'; // Show the original select again
     }
     
     // Create a wrapper div for the custom select
