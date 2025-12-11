@@ -116,8 +116,8 @@ $to_office = $to_office_stmt->fetch();
                             <div class="col-md-6">
                                 <p><strong>Компания:</strong> Служба доставки "Express Delivery"</p>
                                 <p><strong>Адрес:</strong> г. Минск, ул. Примерная, 123</p>
-                                <p><strong>Телефон:</strong> +375 (29) 123-45-67</p>
-                                <p><strong>Email:</strong> info@delivery.by</p>
+                                <p><strong>Телефон:</strong> +375-25-005-50-50</p>
+                                <p><strong>Email:</strong> freedeliverya@gmail.com</p>
                             </div>
                             <div class="col-md-6 text-md-end">
                                 <p><strong>Номер чека:</strong> <?= htmlspecialchars($order['track_number']) ?></p>
@@ -236,7 +236,7 @@ $to_office = $to_office_stmt->fetch();
                             </h2>
                             <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body">
-                                    В случае повреждения посылки при доставке, пожалуйста, свяжитесь с нами по телефону +375 (29) 123-45-67 или через форму обратной связи. Мы поможем решить вопрос в кратчайшие сроки.
+                                    В случае повреждения посылки при доставке, пожалуйста, свяжитесь с нами по телефону +375-25-005-50-50 или через форму обратной связи. Мы поможем решить вопрос в кратчайшие сроки.
                                 </div>
                             </div>
                         </div>
@@ -251,8 +251,8 @@ $to_office = $to_office_stmt->fetch();
 <footer class="footer mt-5 py-4 bg-light border-top">
     <div class="container text-center">
         <p class="mb-1">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1">Контактный телефон: +375 (29) 123-45-67</p>
-        <p class="mb-0">Email: info@delivery.by</p>
+        <p class="mb-1">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 

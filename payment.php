@@ -272,8 +272,8 @@ $carrier = $carrier_stmt->fetch();
 <footer class="footer mt-5 py-4 bg-light border-top">
     <div class="container text-center">
         <p class="mb-1">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1">Контактный телефон: +375 (29) 123-45-67</p>
-        <p class="mb-0">Email: info@delivery.by</p>
+        <p class="mb-1">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 

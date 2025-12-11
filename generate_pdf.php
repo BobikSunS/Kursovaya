@@ -57,8 +57,8 @@ $pdf_content = "
     
     <div class='company-info'>
         <p><strong>Адрес:</strong> г. Минск, ул. Примерная, 123</p>
-        <p><strong>Телефон:</strong> +375 (29) 123-45-67</p>
-        <p><strong>Email:</strong> info@delivery.by</p>
+        <p><strong>Телефон:</strong> +375-25-005-50-50</p>
+        <p><strong>Email:</strong> freedeliverya@gmail.com</p>
     </div>
     
     <div class='order-details'>

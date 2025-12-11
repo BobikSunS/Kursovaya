@@ -396,8 +396,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <footer class="footer mt-auto py-3" style="background-color: rgba(0,0,0,0.05);">
     <div class="container text-center text-muted">
         <p class="mb-1">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1">Контактный телефон: +375 (29) 123-45-67</p>
-        <p class="mb-0">Email: info@delivery.by</p>
+        <p class="mb-1">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 
@@ -428,6 +428,7 @@ function selectCarrier(id, name) {
             const fromSelect = document.querySelector('select[name="from"]');
             const toSelect = document.querySelector('select[name="to"]');
             
+            // Always call addSearchToSelect which handles existing wrappers properly
             if (fromSelect) addSearchToSelect(fromSelect);
             if (toSelect) addSearchToSelect(toSelect);
         });
