@@ -145,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             // Redirect to payment page after successful order creation
-            $order_id = $db->lastInsertId();
             header("Location: payment.php?order_id=$order_id");
             exit;
 

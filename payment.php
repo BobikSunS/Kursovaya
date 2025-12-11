@@ -161,9 +161,9 @@ $carrier = $carrier_stmt->fetch();
                                 <p><strong>Статус доставки:</strong> 
                                     <span class="badge bg-<?= 
                                         (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['delivered', 'доставлен'])) ? 'success' : 
-                                        (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['in_transit', 'в пути'])) ? 'warning' : 
-                                        (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['processed', 'обработан'])) ? 'info' : 
-                                        'secondary' 
+                                        ((isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['in_transit', 'в пути'])) ? 'warning' : 
+                                        ((isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['processed', 'обработан'])) ? 'info' : 
+                                        'secondary'))
                                     ?>">
                                         <?= htmlspecialchars($order['tracking_status'] ?? 'Создан') ?>
                                     </span>

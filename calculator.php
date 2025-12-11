@@ -12,6 +12,11 @@ foreach ($db->query("SELECT from_office, to_office, distance_km FROM routes") as
 }
 
 function dijkstra($graph, $start, $end) {
+    // Check if both start and end nodes exist in the graph
+    if (!isset($graph[$start]) || !isset($graph[$end])) {
+        return null;
+    }
+    
     $dist = array_fill_keys(array_keys($graph), INF);
     $prev = [];
     $dist[$start] = 0;
@@ -430,13 +435,13 @@ function selectCarrier(id, name) {
 
 // Add search functionality to select elements with collapsible dropdown
 function addSearchToSelect(selectElement) {
-    // Check if search functionality is already added to avoid duplication
-    if (selectElement.classList.contains('search-enabled')) {
-        return;
+    // Remove any existing wrapper to avoid duplication
+    if (selectElement.parentNode && selectElement.parentNode.classList.contains('custom-select-wrapper')) {
+        // If it's already wrapped, remove the wrapper and restore the original select
+        const wrapper = selectElement.parentNode;
+        const parent = wrapper.parentNode;
+        parent.replaceChild(selectElement, wrapper);
     }
-    
-    // Mark the select as having search functionality added
-    selectElement.classList.add('search-enabled');
     
     // Create a wrapper div for the custom select
     const wrapper = document.createElement('div');

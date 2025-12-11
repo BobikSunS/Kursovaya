@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         
         // Update the order status
-        $stmt = $db->prepare("UPDATE orders SET tracking_status = ?, status_updated_at = NOW() WHERE id = ?");
+        $stmt = $db->prepare("UPDATE orders SET tracking_status = ? WHERE id = ?");
         $result = $stmt->execute([$new_status, $order_id]);
         
         if ($result) {
