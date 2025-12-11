@@ -251,16 +251,6 @@ $carrier = $carrier_stmt->fetch();
                             Формально оплатить (для проверки)
                         </button>
                         
-                        <!-- Status update section for testing -->
-                        <div class="mt-4">
-                            <h6>Изменить статус заказа (для тестирования):</h6>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Создан')">Статус: Создан</button>
-                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Обработан')">Статус: Обработан</button>
-                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'В пути')">Статус: В пути</button>
-                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Доставлен')">Статус: Доставлен</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
             <?php endif; ?>
@@ -342,33 +332,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to update order status (for testing purposes)
-function updateOrderStatus(orderId, newStatus) {
-    if (confirm('Вы уверены, что хотите изменить статус заказа на: ' + newStatus + '?')) {
-        fetch('update_order_status.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                order_id: orderId,
-                status: newStatus
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Статус успешно обновлен!');
-                location.reload(); // Reload the page to show updated status
-            } else {
-                alert('Ошибка при обновлении статуса: ' + (data.error || 'Неизвестная ошибка'));
-            }
-        })
-        .catch(error => {
-            alert('Ошибка соединения: ' + error.message);
-        });
-    }
-}
+
 </script>
 </body>
 </html>

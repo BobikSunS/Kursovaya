@@ -422,48 +422,7 @@ $status_options = [
         
         <!-- Right column with order status management and additional information -->
         <div class="col-lg-4 mb-4">
-            <!-- Управление статусами заказов -->
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h4>Управление статусами заказов</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Search input for orders -->
-                    <div class="mb-3">
-                        <input type="text" id="order-search" class="form-control" placeholder="Поиск по имени клиента...">
-                    </div>
-                    
-                    <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-                        <table class="table table-hover">
-                            <thead class="table-dark sticky-top">
-                                <tr>
-                                    <th>Трек</th>
-                                    <th>Клиент</th>
-                                    <th>Стоимость</th>
-                                    <th>Статус</th>
-                                </tr>
-                            </thead>
-                            <tbody id="order-table-body">
-                                <?php foreach(array_slice($recent_orders, 0, 10) as $order): ?>
-                                <tr>
-                                    <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
-                                    <td><?= htmlspecialchars($order['user_name'] ?? 'Н/Д') ?></td>
-                                    <td><?= $order['cost'] ?> BYN</td>
-                                    <td>
-                                        <span class="badge bg-info status-badge">
-                                            <?= htmlspecialchars($status_options[$order['tracking_status'] ?? 'created'] ?? 'Обработан') ?>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                        <div class="text-center mt-2">
-                            <a href="#order-status-full" class="btn btn-sm btn-outline-primary">Показать все заказы</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             
             <!-- Full order status management -->
             <div class="card mb-4" id="order-status-full">
@@ -471,7 +430,12 @@ $status_options = [
                     <h5>Полное управление статусами</h5>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Search input for orders by track number -->
+                    <div class="mb-3">
+                        <input type="text" id="order-track-search" class="form-control" placeholder="Поиск по трек-номеру заказа...">
+                    </div>
+                    
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-hover">
                             <thead class="table-dark">
                                 <tr>
@@ -480,8 +444,8 @@ $status_options = [
                                     <th>Изменить</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php foreach(array_slice($recent_orders, 0, 8) as $order): ?>
+                            <tbody id="order-status-table-body">
+                                <?php foreach($recent_orders as $order): ?>
                                 <tr>
                                     <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
                                     <td>
@@ -511,40 +475,7 @@ $status_options = [
                 </div>
             </div>
             
-            <!-- Quick stats -->
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5>Быстрая статистика</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h4 class="text-primary"><?= $total_orders ?></h4>
-                                <small>Заказов</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h4 class="text-success"><?= round($total_revenue, 2) ?> BYN</h4>
-                                <small>Выручка</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h4 class="text-info"><?= $users_count ?></h4>
-                                <small>Пользователей</small>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="bg-light p-3 rounded">
-                                <h4 class="text-warning"><?= round($total_revenue / max($total_orders,1), 2) ?></h4>
-                                <small>Средний чек</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
             
             <!-- Recent activity -->
             <div class="card">

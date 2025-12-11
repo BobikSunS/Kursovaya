@@ -15,15 +15,19 @@ if (!$order) {
     die('Заказ не найден');
 }
 
-// Define order status stages
+// Define order status stages for timeline (normal delivery flow)
 $status_stages = [
     'created' => ['name' => 'Создан', 'description' => 'Заказ создан'],
-    'processed' => ['name' => 'Обработан', 'description' => 'Заказ обработан'],
+    'processed' => ['name' => 'Оплачен', 'description' => 'Заказ оплачен и принят в обработку'], // Changed from 'Обработан' to 'Оплачен'
     'in_transit' => ['name' => 'В пути', 'description' => 'Посылка в пути'],
     'sort_center' => ['name' => 'Сорт. центр', 'description' => 'Посылка в сортировочном центре'],
+    'out_for_delivery' => ['name' => 'У курьера', 'description' => 'Посылка у курьера в пути'],
+    'delivered' => ['name' => 'Доставлен', 'description' => 'Заказ доставлен'] // Will show delivery date when status is delivered
+];
+
+// Define special status that are not part of normal delivery flow
+$special_status = [
     'delayed' => ['name' => 'Задержка', 'description' => 'Возможна задержка доставки'],
-    'out_for_delivery' => ['name' => 'У курьера', 'description' => 'Посылка у курьера'],
-    'delivered' => ['name' => 'Доставлен', 'description' => 'Заказ доставлен'],
     'returned' => ['name' => 'Возвращен', 'description' => 'Заказ возвращен отправителю'],
     'cancelled' => ['name' => 'Отменен', 'description' => 'Заказ отменен']
 ];
@@ -31,13 +35,20 @@ $status_stages = [
 // Get current status from the order (if exists) or default to 'processed'
 $current_status = $order['tracking_status'] ?? 'processed';
 
-// Calculate progress percentage based on status
-$status_keys = array_keys($status_stages);
-$current_index = array_search($current_status, $status_keys);
-if ($current_index === false) {
-    $current_index = 1; // Default to 'processed' if status not found
+// Check if this is a special status
+$is_special_status = isset($special_status[$current_status]);
+
+// Calculate progress percentage based on status if not special status
+if (!$is_special_status) {
+    $status_keys = array_keys($status_stages);
+    $current_index = array_search($current_status, $status_keys);
+    if ($current_index === false) {
+        $current_index = 0; // Default to 'created' if status not found in normal flow
+    }
+    $progress_percentage = ($current_index / (count($status_keys) - 1)) * 100;
+} else {
+    $progress_percentage = 0; // No progress for special statuses
 }
-$progress_percentage = ($current_index / (count($status_keys) - 1)) * 100;
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -111,23 +122,30 @@ $progress_percentage = ($current_index / (count($status_keys) - 1)) * 100;
             <!-- Status progress bar -->
             <div class="mt-4">
                 <h5>Прогресс доставки:</h5>
-                <div class="status-bar">
-                    <div class="status-progress" style="width: <?= $progress_percentage ?>%;"></div>
-                </div>
-                
-                <div class="status-indicators">
-                    <?php foreach($status_keys as $index => $status_key): ?>
-                        <div class="status-indicator">
-                            <div class="status-dot 
-                                <?php 
-                                if ($index < $current_index) echo 'completed'; 
-                                elseif ($index == $current_index) echo 'active'; 
-                                ?>">
+                <?php if ($is_special_status): ?>
+                    <div class="alert alert-warning">
+                        <strong><?= htmlspecialchars($special_status[$current_status]['name']) ?>:</strong> 
+                        <?= htmlspecialchars($special_status[$current_status]['description']) ?>
+                    </div>
+                <?php else: ?>
+                    <div class="status-bar">
+                        <div class="status-progress" style="width: <?= $progress_percentage ?>%;"></div>
+                    </div>
+                    
+                    <div class="status-indicators">
+                        <?php foreach($status_keys as $index => $status_key): ?>
+                            <div class="status-indicator">
+                                <div class="status-dot 
+                                    <?php 
+                                    if ($index < $current_index) echo 'completed'; 
+                                    elseif ($index == $current_index) echo 'active'; 
+                                    ?>">
+                                </div>
+                                <div class="status-label"><?= htmlspecialchars($status_stages[$status_key]['name']) ?></div>
                             </div>
-                            <div class="status-label"><?= htmlspecialchars($status_stages[$status_key]['name']) ?></div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
             
             <div class="row mt-4">
@@ -143,8 +161,11 @@ $progress_percentage = ($current_index / (count($status_keys) - 1)) * 100;
                         <p><strong>Расчетное время доставки:</strong> ~<?= $order['delivery_hours'] ?> ч</p>
                     <?php endif; ?>
                     <p><strong>Текущий статус:</strong> 
-                        <span class="badge bg-info"><?= htmlspecialchars($status_stages[$current_status]['name']) ?></span>
+                        <span class="badge bg-info"><?= htmlspecialchars($is_special_status ? $special_status[$current_status]['name'] : $status_stages[$current_status]['name']) ?></span>
                     </p>
+                    <?php if($current_status === 'delivered' && $order['updated_at']): ?>
+                        <p><strong>Дата доставки:</strong> <?= date('d.m.Y H:i', strtotime($order['updated_at'])) ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
             
