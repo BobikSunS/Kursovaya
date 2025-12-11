@@ -420,6 +420,15 @@ function selectCarrier(id, name) {
         .then(data => {
             ['from', 'to'].forEach(f => {
                 const sel = document.querySelector(`select[name="${f}"]`);
+                
+                // Remove existing search functionality if it exists to prevent duplication
+                if (sel && sel.parentNode && sel.parentNode.classList.contains('custom-select-wrapper')) {
+                    const wrapper = sel.parentNode;
+                    const parent = wrapper.parentNode;
+                    parent.replaceChild(sel, wrapper);
+                    sel.style.display = 'block'; // Show the original select again
+                }
+                
                 sel.innerHTML = '<option value="">Выберите</option>' + 
                     data.map(o => `<option value="${o.id}">${o.city} — ${o.address}</option>`).join('');
             });
@@ -427,20 +436,6 @@ function selectCarrier(id, name) {
             // Initialize search for newly loaded selects
             const fromSelect = document.querySelector('select[name="from"]');
             const toSelect = document.querySelector('select[name="to"]');
-            
-            // Remove existing search functionality if it exists to prevent duplication
-            if (fromSelect && fromSelect.parentNode && fromSelect.parentNode.classList.contains('custom-select-wrapper')) {
-                const wrapper = fromSelect.parentNode;
-                const parent = wrapper.parentNode;
-                parent.replaceChild(fromSelect, wrapper);
-                fromSelect.style.display = 'block'; // Show the original select again
-            }
-            if (toSelect && toSelect.parentNode && toSelect.parentNode.classList.contains('custom-select-wrapper')) {
-                const wrapper = toSelect.parentNode;
-                const parent = wrapper.parentNode;
-                parent.replaceChild(toSelect, wrapper);
-                toSelect.style.display = 'block'; // Show the original select again
-            }
             
             // Add search functionality to the selects
             if (fromSelect) addSearchToSelect(fromSelect);

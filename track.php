@@ -18,12 +18,12 @@ if (!$order) {
 // Define order status stages
 $status_stages = [
     'created' => ['name' => 'Создан', 'description' => 'Заказ создан'],
-    'processed' => ['name' => 'Обработан', 'description' => 'Заказ обработан'],
+    'processed' => ['name' => 'Оплачен', 'description' => 'Заказ оплачен и обработан'],
     'in_transit' => ['name' => 'В пути', 'description' => 'Посылка в пути'],
     'sort_center' => ['name' => 'Сорт. центр', 'description' => 'Посылка в сортировочном центре'],
-    'delayed' => ['name' => 'Задержка', 'description' => 'Возможна задержка доставки'],
     'out_for_delivery' => ['name' => 'У курьера', 'description' => 'Посылка у курьера'],
     'delivered' => ['name' => 'Доставлен', 'description' => 'Заказ доставлен'],
+    'delayed' => ['name' => 'Задержка', 'description' => 'Возможна задержка доставки'],
     'returned' => ['name' => 'Возвращен', 'description' => 'Заказ возвращен отправителю'],
     'cancelled' => ['name' => 'Отменен', 'description' => 'Заказ отменен']
 ];
@@ -144,6 +144,9 @@ $progress_percentage = ($current_index / (count($status_keys) - 1)) * 100;
                     <?php endif; ?>
                     <p><strong>Текущий статус:</strong> 
                         <span class="badge bg-info"><?= htmlspecialchars($status_stages[$current_status]['name']) ?></span>
+                        <?php if($current_status === 'delivered' && $order['created_at']): ?>
+                            <small class="text-muted">(<?= date('d.m.Y H:i', strtotime($order['created_at'])) ?>)</small>
+                        <?php endif; ?>
                     </p>
                 </div>
             </div>
