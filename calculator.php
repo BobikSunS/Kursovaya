@@ -430,6 +430,14 @@ function selectCarrier(id, name) {
 
 // Add search functionality to select elements with collapsible dropdown
 function addSearchToSelect(selectElement) {
+    // Check if search functionality is already added to avoid duplication
+    if (selectElement.classList.contains('search-enabled')) {
+        return;
+    }
+    
+    // Mark the select as having search functionality added
+    selectElement.classList.add('search-enabled');
+    
     // Create a wrapper div for the custom select
     const wrapper = document.createElement('div');
     wrapper.className = 'custom-select-wrapper';

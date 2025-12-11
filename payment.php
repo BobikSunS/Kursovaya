@@ -158,6 +158,16 @@ $carrier = $carrier_stmt->fetch();
                                         <?= (isset($order['payment_status']) && $order['payment_status'] === 'paid') ? 'Оплачен' : 'Не оплачен' ?>
                                     </span>
                                 </p>
+                                <p><strong>Статус доставки:</strong> 
+                                    <span class="badge bg-<?= 
+                                        (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['delivered', 'доставлен'])) ? 'success' : 
+                                        (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['in_transit', 'в пути'])) ? 'warning' : 
+                                        (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['processed', 'обработан'])) ? 'info' : 
+                                        'secondary' 
+                                    ?>">
+                                        <?= htmlspecialchars($order['tracking_status'] ?? 'Создан') ?>
+                                    </span>
+                                </p>
                                 <p><strong>Трек-номер:</strong> <?= htmlspecialchars($order['track_number']) ?></p>
                             </div>
                         </div>
@@ -240,6 +250,17 @@ $carrier = $carrier_stmt->fetch();
                         <button class="btn btn-warning btn-lg w-100 mt-3" onclick="confirmPayment()">
                             Формально оплатить (для проверки)
                         </button>
+                        
+                        <!-- Status update section for testing -->
+                        <div class="mt-4">
+                            <h6>Изменить статус заказа (для тестирования):</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Создан')">Статус: Создан</button>
+                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Обработан')">Статус: Обработан</button>
+                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'В пути')">Статус: В пути</button>
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Доставлен')">Статус: Доставлен</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>
@@ -320,6 +341,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// Function to update order status (for testing purposes)
+function updateOrderStatus(orderId, newStatus) {
+    if (confirm('Вы уверены, что хотите изменить статус заказа на: ' + newStatus + '?')) {
+        fetch('update_order_status.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                order_id: orderId,
+                status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Статус успешно обновлен!');
+                location.reload(); // Reload the page to show updated status
+            } else {
+                alert('Ошибка при обновлении статуса: ' + (data.error || 'Неизвестная ошибка'));
+            }
+        })
+        .catch(error => {
+            alert('Ошибка соединения: ' + error.message);
+        });
+    }
+}
 </script>
 </body>
 </html>

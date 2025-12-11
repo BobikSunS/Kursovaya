@@ -61,11 +61,41 @@ $orders->execute([$user['id']]);
                         <td><?= $o['weight'] ?> кг</td>
                         <td><?= $o['cost'] ?> BYN</td>
                         <td>
-                            <?php if($o['delivery_hours']): ?>
-                                <span class="badge bg-info">Рассчитан</span>
-                            <?php else: ?>
-                                <span class="badge bg-success">Оформлен</span>
-                            <?php endif; ?>
+                            <?php 
+                            $status = $o['tracking_status'] ?? 'created';
+                            $status_badge = 'bg-secondary';
+                            switch(strtolower($status)) {
+                                case 'created':
+                                case 'оформлен':
+                                    $status_badge = 'bg-success';
+                                    $status_text = 'Оформлен';
+                                    break;
+                                case 'processed':
+                                case 'обработан':
+                                    $status_badge = 'bg-info';
+                                    $status_text = 'Обработан';
+                                    break;
+                                case 'in_transit':
+                                case 'в пути':
+                                    $status_badge = 'bg-warning';
+                                    $status_text = 'В пути';
+                                    break;
+                                case 'delivered':
+                                case 'доставлен':
+                                    $status_badge = 'bg-success';
+                                    $status_text = 'Доставлен';
+                                    break;
+                                case 'pending':
+                                case 'ожидает':
+                                    $status_badge = 'bg-secondary';
+                                    $status_text = 'Ожидает';
+                                    break;
+                                default:
+                                    $status_badge = 'bg-secondary';
+                                    $status_text = $status;
+                            }
+                            ?>
+                            <span class="badge <?php echo $status_badge; ?>"><?php echo htmlspecialchars($status_text); ?></span>
                         </td>
                         <td><?= date('d.m.Y H:i', strtotime($o['created_at'])) ?></td>
                     </tr>

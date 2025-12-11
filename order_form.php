@@ -144,10 +144,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_update->execute($update_values);
             }
 
-            $success = true;
-            $track_number = $track;
-            $total_cost = $cost;
-            
             // Redirect to payment page after successful order creation
             $order_id = $db->lastInsertId();
             header("Location: payment.php?order_id=$order_id");

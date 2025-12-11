@@ -7,20 +7,20 @@ __pycache__/
 vendor/
 composer.lock
 
+# Logs and temp files
+*.log
+*.tmp
+
 # Environment
 .env
 .env.local
 *.env.*
 
-# Logs and temp files
-*.log
-*.tmp
-
 # Editors
 .vscode/
 .idea/
 
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
 ```
