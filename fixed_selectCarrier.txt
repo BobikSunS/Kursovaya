@@ -1,0 +1,38 @@
+function selectCarrier(id, name) {
+    if (selected) selected.classList.remove('selected');
+    const card = event.currentTarget;
+    card.classList.add('selected');
+    selected = card;
+
+    document.getElementById('selected-carrier').value = id;
+    document.getElementById('carrier-name').textContent = name;
+    document.getElementById('calc-form').style.display = 'block';
+
+    // Load offices with search functionality
+    fetch('get_offices.php?carrier=' + id)
+        .then(r => r.json())
+        .then(data => {
+            ['from', 'to'].forEach(f => {
+                const sel = document.querySelector(`select[name="${f}"]`);
+                
+                // Clear existing search wrapper if present before replacing content
+                if (sel && sel.parentNode && sel.parentNode.classList.contains('custom-select-wrapper')) {
+                    const wrapper = sel.parentNode;
+                    const parent = wrapper.parentNode;
+                    parent.replaceChild(sel, wrapper);
+                    sel.style.display = 'block'; // Show the original select again
+                }
+                
+                sel.innerHTML = '<option value="">Выберите</option>' +
+                    data.map(o => `<option value="${o.id}">${o.city} — ${o.address}</option>`).join('');
+            });
+
+            // Initialize search for newly loaded selects
+            const fromSelect = document.querySelector('select[name="from"]');
+            const toSelect = document.querySelector('select[name="to"]');
+
+            // Add search functionality to the selects
+            if (fromSelect) addSearchToSelect(fromSelect);
+            if (toSelect) addSearchToSelect(toSelect);
+        });
+}
