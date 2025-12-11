@@ -246,7 +246,10 @@ $carrier = $carrier_stmt->fetch();
                             </button>
                         </form>
                         
-
+                        <!-- Temporary button for testing -->
+                        <button class="btn btn-warning btn-lg w-100 mt-3" onclick="confirmPayment()">
+                            Формально оплатить (для проверки)
+                        </button>
                         
                     </div>
                 </div>
