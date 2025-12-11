@@ -251,7 +251,16 @@ $carrier = $carrier_stmt->fetch();
                             Формально оплатить (для проверки)
                         </button>
                         
-
+                        <!-- Status update section for testing -->
+                        <div class="mt-4">
+                            <h6>Изменить статус заказа (для тестирования):</h6>
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Создан')">Статус: Создан</button>
+                                <button class="btn btn-info btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Обработан')">Статус: Обработан</button>
+                                <button class="btn btn-warning btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'В пути')">Статус: В пути</button>
+                                <button class="btn btn-success btn-sm" onclick="updateOrderStatus(<?php echo $order['id']; ?>, 'Доставлен')">Статус: Доставлен</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             <?php endif; ?>
