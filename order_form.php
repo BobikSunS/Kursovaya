@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Валидация и очистка данных
     $full_name = trim($_POST['full_name'] ?? '');
     $home_address = trim($_POST['home_address'] ?? '');
+    $recipient_name = trim($_POST['recipient_name'] ?? '');
+    $recipient_address = trim($_POST['recipient_address'] ?? '');
     $weight = floatval($_POST['weight'] ?? 0);
     $carrier_id = intval($_POST['carrier'] ?? 0);
     $from_office = intval($_POST['from_office'] ?? 0);
@@ -44,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $comment = trim($_POST['comment'] ?? '');
 
     // Валидация обязательных полей
-    if (empty($full_name) || empty($home_address) || $weight <= 0 || $carrier_id <= 0 || $from_office <= 0 || $to_office <= 0) {
+    if (empty($full_name) || empty($home_address) || empty($recipient_name) || empty($recipient_address) || $weight <= 0 || $carrier_id <= 0 || $from_office <= 0 || $to_office <= 0) {
         $error = "Пожалуйста, заполните все обязательные поля!";
     } else {
         try {
@@ -108,6 +110,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array('home_address', $existing_columns)) {
                 $update_fields[] = "home_address = ?";
                 $update_values[] = $home_address;
+            }
+            if (in_array('recipient_name', $existing_columns)) {
+                $update_fields[] = "recipient_name = ?";
+                $update_values[] = $recipient_name;
+            }
+            if (in_array('recipient_address', $existing_columns)) {
+                $update_fields[] = "recipient_address = ?";
+                $update_values[] = $recipient_address;
             }
             if (in_array('desired_date', $existing_columns)) {
                 $update_fields[] = "desired_date = ?";
@@ -281,7 +291,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <div class="row">
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">ФИО <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">ФИО отправителя <span class="text-danger">*</span></label>
                                 <input type="text" name="full_name" class="form-control" required 
                                        placeholder="Иванов Иван Иванович" 
                                        value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>">
@@ -290,14 +300,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         
                         <div class="row mt-3">
                             <div class="col-md-12">
-                                <label class="form-label fw-bold">Домашний адрес <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Домашний адрес отправителя <span class="text-danger">*</span></label>
                                 <textarea name="home_address" class="form-control" rows="2" required 
                                           placeholder="Укажите ваш постоянный адрес проживания"><?= htmlspecialchars($_POST['home_address'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Выбор офисов -->
+                    <!-- Данные получателя -->
+                    <div class="form-section">
+                        <h4 class="section-title">Данные получателя</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">ФИО получателя <span class="text-danger">*</span></label>
+                                <input type="text" name="recipient_name" class="form-control" required 
+                                       placeholder="ФИО получателя" 
+                                       value="<?= htmlspecialchars($_POST['recipient_name'] ?? '') ?>">
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Адрес получателя <span class="text-danger">*</span></label>
+                                <textarea name="recipient_address" class="form-control" rows="2" required 
+                                          placeholder="Адрес, куда будет доставлена посылка"><?= htmlspecialchars($_POST['recipient_address'] ?? '') ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Выбор оператора -->
+                    <div class="form-section">
+                        <h4 class="section-title">Выбор оператора</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Служба доставки <span class="text-danger">*</span></label>
+                                <select name="carrier" class="form-select" required id="carrier-select">
+                                    <option value="">Выберите службу доставки</option>
+                                    <?php foreach($carriers as $carrier): ?>
+                                        <option value="<?= $carrier['id'] ?>" 
+                                            <?= (isset($_POST['carrier']) && $_POST['carrier'] == $carrier['id']) ? 'selected' : (isset($preselected_carrier) && $preselected_carrier == $carrier['id'] ? 'selected' : '') ?>>
+                                            <?= htmlspecialchars($carrier['name']) ?> (до <?= $carrier['max_weight'] ?> кг)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Информация о доставке -->
                     <div class="form-section">
                         <h4 class="section-title">Информация о доставке</h4>
                         
@@ -308,28 +360,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Отделение получения <span class="text-danger">*</span></label>
-                                <select name="from_office" class="form-select" required>
+                                <select name="from_office" class="form-select" required id="from-office-select" disabled>
                                     <option value="">Выберите отделение</option>
                                     <?php 
                                     $offices = $db->query("SELECT o.*, c.name as carrier_name FROM offices o LEFT JOIN carriers c ON o.carrier_id = c.id ORDER BY c.name, o.city")->fetchAll();
                                     foreach($offices as $office): 
                                     ?>
-                                        <option value="<?= $office['id'] ?>" <?= ($preselected_from_office == $office['id']) ? 'selected' : '' ?>>
+                                        <option value="<?= $office['id'] ?>" <?= ($preselected_from_office == $office['id']) ? 'selected' : '' ?> data-carrier="<?= $office['carrier_id'] ?>">
                                             <?= htmlspecialchars($office['carrier_name']) ?>, <?= htmlspecialchars($office['city']) ?> — <?= htmlspecialchars($office['address']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <div class="form-text">Выберите отделение после выбора оператора</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-bold">Отделение доставки <span class="text-danger">*</span></label>
-                                <select name="to_office" class="form-select" required>
+                                <select name="to_office" class="form-select" required id="to-office-select" disabled>
                                     <option value="">Выберите отделение</option>
                                     <?php foreach($offices as $office): ?>
-                                        <option value="<?= $office['id'] ?>" <?= ($preselected_to_office == $office['id']) ? 'selected' : '' ?>>
+                                        <option value="<?= $office['id'] ?>" <?= ($preselected_to_office == $office['id']) ? 'selected' : '' ?> data-carrier="<?= $office['carrier_id'] ?>">
                                             <?= htmlspecialchars($office['carrier_name']) ?>, <?= htmlspecialchars($office['city']) ?> — <?= htmlspecialchars($office['address']) ?>
                                         </option>
                                     <?php endforeach; ?>
                                 </select>
+                                <div class="form-text">Выберите отделение после выбора оператора</div>
                             </div>
                         </div>
                     </div>
@@ -348,34 +402,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </div>
                             
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">Служба доставки <span class="text-danger">*</span></label>
-                                <select name="carrier" class="form-select" required>
-                                    <option value="">Выберите службу доставки</option>
-                                    <?php foreach($carriers as $carrier): ?>
-                                        <option value="<?= $carrier['id'] ?>" 
-                                            <?= (isset($_POST['carrier']) && $_POST['carrier'] == $carrier['id']) ? 'selected' : (isset($preselected_carrier) && $preselected_carrier == $carrier['id'] ? 'selected' : '') ?>>
-                                            <?= htmlspecialchars($carrier['name']) ?> (до <?= $carrier['max_weight'] ?> кг)
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="row mt-3">
-                            <div class="col-md-6">
                                 <label class="form-label fw-bold">Желаемая дата получения</label>
                                 <input type="date" name="desired_date" class="form-control" 
+                                       min="<?= date('Y-m-d', strtotime('+1 day')) ?>" 
                                        value="<?= htmlspecialchars($_POST['desired_date'] ?? '') ?>">
-                                <div class="form-text">Дата, когда вы хотите получить посылку</div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold">Способ оплаты</label>
-                                <select name="payment_method" class="form-select">
-                                    <option value="cash" <?= (!isset($_POST['payment_method']) || $_POST['payment_method'] == 'cash') ? 'selected' : '' ?>>Наличные</option>
-                                    <option value="card" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'card') ? 'selected' : '' ?>>Карта онлайн</option>
-                                    <option value="account" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'account') ? 'selected' : '' ?>>На расчетный счет</option>
-                                </select>
+                                <div class="form-text">Дата, когда вы хотите получить посылку (не ранее завтрашнего дня)</div>
                             </div>
                         </div>
                     </div>
@@ -426,6 +457,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
+                    <!-- Способ оплаты -->
+                    <div class="form-section">
+                        <h4 class="section-title">Способ оплаты</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label class="form-label fw-bold">Способ оплаты</label>
+                                <select name="payment_method" class="form-select">
+                                    <option value="cash" <?= (!isset($_POST['payment_method']) || $_POST['payment_method'] == 'cash') ? 'selected' : '' ?>>Наличные</option>
+                                    <option value="card" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'card') ? 'selected' : '' ?>>Карта онлайн</option>
+                                    <option value="account" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'account') ? 'selected' : '' ?>>На расчетный счет</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <!-- Кнопки управления -->
                     <div class="d-grid gap-3 d-md-flex justify-content-md-center">
                         <a href="calculator.php" class="btn btn-secondary btn-lg">Вернуться к калькулятору</a>
@@ -465,6 +513,73 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
+    // Enable office selection when carrier is selected
+    const carrierSelect = document.getElementById('carrier-select');
+    const fromOfficeSelect = document.getElementById('from-office-select');
+    const toOfficeSelect = document.getElementById('to-office-select');
+    
+    if (carrierSelect && fromOfficeSelect && toOfficeSelect) {
+        // Initially check if carrier is already selected
+        if (carrierSelect.value) {
+            fromOfficeSelect.disabled = false;
+            toOfficeSelect.disabled = false;
+            
+            // Filter offices by selected carrier
+            filterOfficesByCarrier(carrierSelect.value);
+        }
+        
+        carrierSelect.addEventListener('change', function() {
+            if (this.value) {
+                fromOfficeSelect.disabled = false;
+                toOfficeSelect.disabled = false;
+                
+                // Filter offices by selected carrier
+                filterOfficesByCarrier(this.value);
+            } else {
+                fromOfficeSelect.disabled = true;
+                toOfficeSelect.disabled = true;
+                
+                // Reset selections
+                fromOfficeSelect.value = '';
+                toOfficeSelect.value = '';
+            }
+        });
+    }
+    
+    function filterOfficesByCarrier(carrierId) {
+        // Show all options first
+        const fromOptions = fromOfficeSelect.querySelectorAll('option');
+        const toOptions = toOfficeSelect.querySelectorAll('option');
+        
+        // Filter from office options
+        fromOptions.forEach(option => {
+            if (option.value === '') {
+                option.style.display = '';
+            } else {
+                const optionCarrierId = option.getAttribute('data-carrier');
+                if (optionCarrierId === carrierId || carrierId === '') {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        });
+        
+        // Filter to office options
+        toOptions.forEach(option => {
+            if (option.value === '') {
+                option.style.display = '';
+            } else {
+                const optionCarrierId = option.getAttribute('data-carrier');
+                if (optionCarrierId === carrierId || carrierId === '') {
+                    option.style.display = '';
+                } else {
+                    option.style.display = 'none';
+                }
+            }
+        });
+    }
 });
 </script>
 </body>
