@@ -235,167 +235,272 @@ $status_options = [
     </div>
 
     <div class="row">
-        <!-- Редактирование тарифов -->
-        <div class="col-lg-7 mb-4">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h4>Тарифы операторов (редактирование)</h4>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Оператор</th>
-                                    <th>База</th>
-                                    <th>За кг</th>
-                                    <th>За км</th>
-                                    <th>Макс. вес</th>
-                                    <th>Скорость</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($carriers as $c): ?>
-                                <tr>
-                                    <td><strong style="color:<?= $c['color'] ?>"><?= htmlspecialchars($c['name']) ?></strong></td>
-                                    <form method="POST">
-                                        <input type="hidden" name="action" value="update_carrier">
-                                        <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                        <td><input name="base_cost" value="<?= $c['base_cost'] ?>" class="form-control form-control-sm edit-input" step="0.1"></td>
-                                        <td><input name="cost_per_kg" value="<?= $c['cost_per_kg'] ?>" class="form-control form-control-sm edit-input" step="0.05"></td>
-                                        <td><input name="cost_per_km" value="<?= $c['cost_per_km'] ?>" class="form-control form-control-sm edit-input" step="0.001"></td>
-                                        <td><input name="max_weight" value="<?= $c['max_weight'] ?>" class="form-control form-control-sm edit-input"></td>
-                                        <td><input name="speed_kmh" value="<?= $c['speed_kmh'] ?>" class="form-control form-control-sm edit-input"></td>
-                                        <td>
-                                            <button class="btn btn-success btn-sm me-1">Сохранить</button>
-                                            <a href="routes.php?carrier=<?= $c['id'] ?>" class="btn btn-info btn-sm me-1">Маршруты</a>
-                                            <form method="POST" class="d-inline" onsubmit="return confirm('Удалить оператора <?= addslashes(htmlspecialchars($c['name'])) ?>?');">
-                                                <input type="hidden" name="action" value="delete_carrier">
+        <div class="col-lg-8 mb-4">
+            <div class="row">
+                <!-- Редактирование тарифов -->
+                <div class="col-md-12 mb-4">
+                    <div class="card shadow-lg">
+                        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #3498db, #2c3e50);">
+                            <h4 class="mb-0"><i class="fas fa-cogs me-2"></i>Тарифы операторов</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Оператор</th>
+                                            <th>База</th>
+                                            <th>За кг</th>
+                                            <th>За км</th>
+                                            <th>Макс. вес</th>
+                                            <th>Скорость</th>
+                                            <th>Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($carriers as $c): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <span class="badge rounded-pill me-2" style="background-color: <?= $c['color'] ?>">&nbsp;</span>
+                                                    <strong style="color:<?= $c['color'] ?>"><?= htmlspecialchars($c['name']) ?></strong>
+                                                </div>
+                                            </td>
+                                            <form method="POST" class="align-middle">
+                                                <input type="hidden" name="action" value="update_carrier">
                                                 <input type="hidden" name="id" value="<?= $c['id'] ?>">
-                                                <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                                <td><input name="base_cost" value="<?= $c['base_cost'] ?>" class="form-control form-control-sm" step="0.1"></td>
+                                                <td><input name="cost_per_kg" value="<?= $c['cost_per_kg'] ?>" class="form-control form-control-sm" step="0.05"></td>
+                                                <td><input name="cost_per_km" value="<?= $c['cost_per_km'] ?>" class="form-control form-control-sm" step="0.001"></td>
+                                                <td><input name="max_weight" value="<?= $c['max_weight'] ?>" class="form-control form-control-sm"></td>
+                                                <td><input name="speed_kmh" value="<?= $c['speed_kmh'] ?>" class="form-control form-control-sm"></td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        <button class="btn btn-sm btn-success me-1" title="Сохранить изменения"><i class="fas fa-save"></i></button>
+                                                        <a href="routes.php?carrier=<?= $c['id'] ?>" class="btn btn-sm btn-info me-1" title="Маршруты"><i class="fas fa-route"></i></a>
+                                                        <form method="POST" class="d-inline" onsubmit="return confirm('Удалить оператора <?= addslashes(htmlspecialchars($c['name'])) ?>?');">
+                                                            <input type="hidden" name="action" value="delete_carrier">
+                                                            <input type="hidden" name="id" value="<?= $c['id'] ?>">
+                                                            <button type="submit" class="btn btn-sm btn-danger" title="Удалить"><i class="fas fa-trash"></i></button>
+                                                        </form>
+                                                    </div>
+                                                </td>
                                             </form>
-                                        </td>
-                                    </form>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <!-- Добавление нового оператора -->
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h4>Добавить нового оператора</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="">
+                                <input type="hidden" name="action" value="add_carrier">
+                                <div class="mb-3">
+                                    <label class="form-label">Название оператора</label>
+                                    <input type="text" name="name" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Цвет (HEX)</label>
+                                    <input type="color" name="color" class="form-control form-control-color" value="#0066cc" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Базовая стоимость</label>
+                                    <input type="number" step="0.01" name="base_cost" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Стоимость за кг</label>
+                                    <input type="number" step="0.01" name="cost_per_kg" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Стоимость за км</label>
+                                    <input type="number" step="0.001" name="cost_per_km" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Макс. вес (кг)</label>
+                                    <input type="number" step="0.1" name="max_weight" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Скорость (км/ч)</label>
+                                    <input type="number" step="0.1" name="speed_kmh" class="form-control" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Описание</label>
+                                    <input type="text" name="description" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-info btn-lg w-100">Добавить оператора</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <!-- Добавление нового отделения -->
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h4>Добавить новое отделение</h4>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="">
+                                <input type="hidden" name="action" value="add_office">
+                                <div class="mb-3">
+                                    <label class="form-label">Оператор</label>
+                                    <select name="carrier_id" class="form-select" required>
+                                        <option value="">Выберите оператора</option>
+                                        <?php foreach($carriers as $c): ?>
+                                            <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Город</label>
+                                    <input type="text" name="city" class="form-control" placeholder="Например: Минск" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Адрес</label>
+                                    <input type="text" name="address" class="form-control" placeholder="Полный адрес отделения" required>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg w-100">Добавить отделение</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Список отделений с возможностью удаления -->
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h4>Список отделений</h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Search input for offices -->
+                            <div class="mb-3">
+                                <input type="text" id="office-search" class="form-control" placeholder="Поиск по адресу отделения...">
+                            </div>
+                            
+                            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
+                                <table class="table table-hover">
+                                    <thead class="table-dark sticky-top">
+                                        <tr>
+                                            <th>Оператор</th>
+                                            <th>Город</th>
+                                            <th>Адрес</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="office-table-body">
+                                        <?php foreach($offices as $office): ?>
+                                        <tr>
+                                            <td><strong style="color:<?= $office['carrier_id'] ? $carriers[array_search($office['carrier_id'], array_column($carriers, 'id'))]['color'] ?? '#000000' : '#000000' ?>"><?= htmlspecialchars($office['carrier_name'] ?? 'Н/Д') ?></strong></td>
+                                            <td><?= htmlspecialchars($office['city']) ?></td>
+                                            <td id="office-address-<?= $office['id'] ?>"><?= htmlspecialchars($office['address']) ?></td>
+                                            <td>
+                                                <form method="POST" class="d-inline" onsubmit="return confirm('Удалить отделение в <?= addslashes(htmlspecialchars($office['city'])) ?>, <?= addslashes(htmlspecialchars($office['address'])) ?>?');">
+                                                    <input type="hidden" name="action" value="delete_office">
+                                                    <input type="hidden" name="id" value="<?= $office['id'] ?>">
+                                                    <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-    <!-- Добавление нового оператора -->
-            <div class="card mt-4">
-                <div class="card-header bg-info text-white">
-                    <h4>Добавить нового оператора</h4>
+        </div>
+        
+        <!-- Right column with order status management and additional information -->
+        <div class="col-lg-4 mb-4">
+            <!-- Управление статусами заказов -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h4>Управление статусами заказов</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="">
-                        <input type="hidden" name="action" value="add_carrier">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Название оператора</label>
-                                <input type="text" name="name" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Цвет (HEX)</label>
-                                <input type="color" name="color" class="form-control form-control-color" value="#0066cc" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Базовая стоимость</label>
-                                <input type="number" step="0.01" name="base_cost" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Стоимость за кг</label>
-                                <input type="number" step="0.01" name="cost_per_kg" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Стоимость за км</label>
-                                <input type="number" step="0.001" name="cost_per_km" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Макс. вес (кг)</label>
-                                <input type="number" step="0.1" name="max_weight" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Скорость (км/ч)</label>
-                                <input type="number" step="0.1" name="speed_kmh" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Описание</label>
-                                <input type="text" name="description" class="form-control">
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-info btn-lg w-100">Добавить оператора</button>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Добавление нового отделения -->
-            <div class="card mt-4">
-                <div class="card-header bg-success text-white">
-                    <h4>Добавить новое отделение</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="">
-                        <input type="hidden" name="action" value="add_office">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Оператор</label>
-                                <select name="carrier_id" class="form-select" required>
-                                    <option value="">Выберите оператора</option>
-                                    <?php foreach($carriers as $c): ?>
-                                        <option value="<?= $c['id'] ?>"><?= htmlspecialchars($c['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Город</label>
-                                <input type="text" name="city" class="form-control" placeholder="Например: Минск" required>
-                            </div>
-                            <div class="col-md-12 mb-3">
-                                <label class="form-label">Адрес</label>
-                                <input type="text" name="address" class="form-control" placeholder="Полный адрес отделения" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-success btn-lg w-100">Добавить отделение</button>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Список отделений с возможностью удаления -->
-            <div class="card mt-4">
-                <div class="card-header bg-secondary text-white">
-                    <h4>Список отделений</h4>
-                </div>
-                <div class="card-body">
-                    <!-- Search input for offices -->
+                    <!-- Search input for orders -->
                     <div class="mb-3">
-                        <input type="text" id="office-search" class="form-control" placeholder="Поиск по адресу отделения...">
+                        <input type="text" id="order-search" class="form-control" placeholder="Поиск по имени клиента...">
                     </div>
                     
                     <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
                         <table class="table table-hover">
                             <thead class="table-dark sticky-top">
                                 <tr>
-                                    <th>Оператор</th>
-                                    <th>Город</th>
-                                    <th>Адрес</th>
-                                    <th></th>
+                                    <th>Трек</th>
+                                    <th>Клиент</th>
+                                    <th>Стоимость</th>
+                                    <th>Статус</th>
                                 </tr>
                             </thead>
-                            <tbody id="office-table-body">
-                                <?php foreach($offices as $office): ?>
+                            <tbody id="order-table-body">
+                                <?php foreach(array_slice($recent_orders, 0, 10) as $order): ?>
                                 <tr>
-                                    <td><strong style="color:<?= $office['carrier_id'] ? $carriers[array_search($office['carrier_id'], array_column($carriers, 'id'))]['color'] ?? '#000000' : '#000000' ?>"><?= htmlspecialchars($office['carrier_name'] ?? 'Н/Д') ?></strong></td>
-                                    <td><?= htmlspecialchars($office['city']) ?></td>
-                                    <td id="office-address-<?= $office['id'] ?>"><?= htmlspecialchars($office['address']) ?></td>
+                                    <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
+                                    <td><?= htmlspecialchars($order['user_name'] ?? 'Н/Д') ?></td>
+                                    <td><?= $order['cost'] ?> BYN</td>
                                     <td>
-                                        <form method="POST" class="d-inline" onsubmit="return confirm('Удалить отделение в <?= addslashes(htmlspecialchars($office['city'])) ?>, <?= addslashes(htmlspecialchars($office['address'])) ?>?');">
-                                            <input type="hidden" name="action" value="delete_office">
-                                            <input type="hidden" name="id" value="<?= $office['id'] ?>">
-                                            <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
+                                        <span class="badge bg-info status-badge">
+                                            <?= htmlspecialchars($status_options[$order['tracking_status'] ?? 'created'] ?? 'Обработан') ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <div class="text-center mt-2">
+                            <a href="#order-status-full" class="btn btn-sm btn-outline-primary">Показать все заказы</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Full order status management -->
+            <div class="card mb-4" id="order-status-full">
+                <div class="card-header bg-warning text-dark">
+                    <h5>Полное управление статусами</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Трек</th>
+                                    <th>Статус</th>
+                                    <th>Изменить</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach(array_slice($recent_orders, 0, 8) as $order): ?>
+                                <tr>
+                                    <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
+                                    <td>
+                                        <span class="badge bg-info status-badge">
+                                            <?= htmlspecialchars($status_options[$order['tracking_status'] ?? 'created'] ?? 'Обработан') ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form method="POST" class="d-inline status-form" onsubmit="updateStatus(event, <?= $order['id'] ?>)">
+                                            <input type="hidden" name="action" value="update_status">
+                                            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                            <select name="new_status" class="form-select form-select-sm d-inline w-auto me-1 status-select" data-order-id="<?= $order['id'] ?>">
+                                                <?php foreach($status_options as $status_key => $status_name): ?>
+                                                <option value="<?= $status_key ?>" <?= (($order['tracking_status'] ?? 'created') == $status_key) ? 'selected' : '' ?>>
+                                                    <?= $status_name ?>
+                                                </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button class="btn btn-sm btn-warning">Изм</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -405,64 +510,64 @@ $status_options = [
                     </div>
                 </div>
             </div>
-        </div>
-
-    <!-- Управление статусами заказов -->
-    <div class="card mb-4">
-        <div class="card-header bg-warning text-dark">
-            <h4>Управление статусами заказов</h4>
-        </div>
-        <div class="card-body">
-            <!-- Search input for orders -->
-            <div class="mb-3">
-                <input type="text" id="order-search" class="form-control" placeholder="Поиск по имени клиента...">
+            
+            <!-- Quick stats -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>Быстрая статистика</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h4 class="text-primary"><?= $total_orders ?></h4>
+                                <small>Заказов</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h4 class="text-success"><?= round($total_revenue, 2) ?> BYN</h4>
+                                <small>Выручка</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h4 class="text-info"><?= $users_count ?></h4>
+                                <small>Пользователей</small>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="bg-light p-3 rounded">
+                                <h4 class="text-warning"><?= round($total_revenue / max($total_orders,1), 2) ?></h4>
+                                <small>Средний чек</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             
-            <div class="table-responsive" style="max-height: 450px; overflow-y: auto;">
-                <table class="table table-hover">
-                    <thead class="table-dark sticky-top">
-                        <tr>
-                            <th>Трек</th>
-                            <th>Клиент</th>
-                            <th>Оператор</th>
-                            <th>Стоимость</th>
-                            <th>Текущий статус</th>
-                            <th>Изменить статус</th>
-                        </tr>
-                    </thead>
-                    <tbody id="order-table-body">
-                        <?php foreach($recent_orders as $order): ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
-                            <td id="order-user-<?= $order['id'] ?>"><?= htmlspecialchars($order['user_name'] ?? 'Н/Д') ?></td>
-                            <td><?= htmlspecialchars($order['carrier_name'] ?? 'Н/Д') ?></td>
-                            <td><?= $order['cost'] ?> BYN</td>
-                            <td>
-                                <span class="badge bg-info status-badge">
-                                    <?= htmlspecialchars($status_options[$order['tracking_status'] ?? 'created'] ?? 'Обработан') ?>
-                                </span>
-                            </td>
-                            <td>
-                                <form method="POST" class="d-inline status-form" onsubmit="updateStatus(event, <?= $order['id'] ?>)">
-                                    <input type="hidden" name="action" value="update_status">
-                                    <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                    <select name="new_status" class="form-select form-select-sm d-inline w-auto me-2 status-select" data-order-id="<?= $order['id'] ?>">
-                                        <?php foreach($status_options as $status_key => $status_name): ?>
-                                        <option value="<?= $status_key ?>" <?= (($order['tracking_status'] ?? 'created') == $status_key) ? 'selected' : '' ?>>
-                                            <?= $status_name ?>
-                                        </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button class="btn btn-sm btn-warning">Изменить</button>
-                                </form>
-                            </td>
-                        </tr>
+            <!-- Recent activity -->
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5>Недавние заказы</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <?php foreach(array_slice($recent_orders, 0, 5) as $order): ?>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><?= htmlspecialchars($order['track_number']) ?></h6>
+                                <small><?= date('d.m H:i', strtotime($order['created_at'])) ?></small>
+                            </div>
+                            <p class="mb-1"><?= htmlspecialchars($order['user_name'] ?? 'Н/Д') ?></p>
+                            <small><?= $order['cost'] ?> BYN, <?= htmlspecialchars($order['carrier_name'] ?? 'Н/Д') ?></small>
+                        </a>
                         <?php endforeach; ?>
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+
 
     <!-- Графики -->
     <div class="row">
