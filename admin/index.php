@@ -464,7 +464,7 @@ $status_options = [
                                                 </option>
                                                 <?php endforeach; ?>
                                             </select>
-                                            <button class="btn btn-sm btn-warning">Изм</button>
+                                            <button class="btn btn-sm btn-warning">Изменить</button>
                                         </form>
                                     </td>
                                 </tr>

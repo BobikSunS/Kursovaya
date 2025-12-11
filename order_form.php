@@ -302,14 +302,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h4 class="section-title">Информация о доставке</h4>
                         
                         <div class="info-box">
-                            <strong>Важно:</strong> Выберите офисы получения и доставки посылки.
+                            <strong>Важно:</strong> Выберите отделения получения и доставки посылки.
                         </div>
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Офис получения <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Отделение получения <span class="text-danger">*</span></label>
                                 <select name="from_office" class="form-select" required>
-                                    <option value="">Выберите офис получения</option>
+                                    <option value="">Выберите отделение</option>
                                     <?php 
                                     $offices = $db->query("SELECT o.*, c.name as carrier_name FROM offices o LEFT JOIN carriers c ON o.carrier_id = c.id ORDER BY c.name, o.city")->fetchAll();
                                     foreach($offices as $office): 
@@ -321,9 +321,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold">Офис доставки <span class="text-danger">*</span></label>
+                                <label class="form-label fw-bold">Отделение доставки <span class="text-danger">*</span></label>
                                 <select name="to_office" class="form-select" required>
-                                    <option value="">Выберите офис доставки</option>
+                                    <option value="">Выберите отделение</option>
                                     <?php foreach($offices as $office): ?>
                                         <option value="<?= $office['id'] ?>" <?= ($preselected_to_office == $office['id']) ? 'selected' : '' ?>>
                                             <?= htmlspecialchars($office['carrier_name']) ?>, <?= htmlspecialchars($office['city']) ?> — <?= htmlspecialchars($office['address']) ?>

@@ -29,7 +29,7 @@ $user = $_SESSION['user'];
             <div class="card card-shadow">
                 <div class="card-body text-center">
                     <h2>Привет, <?= htmlspecialchars($user['name'] ?: $user['login']) ?>!</h2>
-                    <p class="lead">Роль: <strong><?= $user['role']==='admin'?'Администратор':'Пользователь' ?></strong></p>
+                    <p class="lead">Вы вошли как: <strong><?= $user['role']==='admin'?'Администратор':'Пользователь' ?></strong></p>
                     <hr>
                     <div class="d-grid gap-3">
                         <a href="calculator.php" class="btn btn-primary btn-lg">Рассчитать доставку</a>

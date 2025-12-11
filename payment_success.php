@@ -98,10 +98,10 @@ $to_office = $to_office_stmt->fetch();
         <div class="col-md-8 mx-auto">
             <!-- Payment success message -->
             <div class="card bg-success text-white text-center p-5 mb-5">
-                <h2 class="text-white">Платеж подтвержден!</h2>
-                <p class="lead text-white">Ваш заказ №<strong class="text-warning"><?= htmlspecialchars($order['track_number']) ?></strong> оплачен и принят в обработку</p>
+                <h2 class="text-black">Платеж подтвержден!</h2>
+                <p class="lead text-black">Ваш заказ №<strong class="text-warning"><?= htmlspecialchars($order['track_number']) ?></strong> оплачен и принят в обработку</p>
                 <h3 class="text-warning"><?= number_format($order['cost'], 2) ?> BYN</h3>
-                <p class="text-white">Спасибо за доверие к нашей службе доставки!</p>
+                <p class="text-black">Спасибо за доверие к нашей службе доставки!</p>
             </div>
             
             <!-- Receipt details -->
@@ -130,7 +130,7 @@ $to_office = $to_office_stmt->fetch();
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h6>Отправитель:</h6>
-                            <p>ООО "Продавец"</p>
+                            <p>ООО "Доставка.by"</p>
                             <p>г. Минск</p>
                         </div>
                         <div class="col-md-6">
