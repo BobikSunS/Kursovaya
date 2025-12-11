@@ -98,10 +98,10 @@ $to_office = $to_office_stmt->fetch();
         <div class="col-md-8 mx-auto">
             <!-- Payment success message -->
             <div class="card bg-success text-white text-center p-5 mb-5">
-                <h2 class="text-white">Платеж подтвержден!</h2>
-                <p class="lead text-white">Ваш заказ №<?= htmlspecialchars($order['track_number']) ?> оплачен и принят в обработку</p>
+                <h2>Платеж подтвержден!</h2>
+                <p class="lead">Ваш заказ №<?= htmlspecialchars($order['track_number']) ?> оплачен и принят в обработку</p>
                 <h3 class="text-warning"><?= number_format($order['cost'], 2) ?> BYN</h3>
-                <p class="text-white">Спасибо за доверие к нашей службе доставки!</p>
+                <p>Спасибо за доверие к нашей службе доставки!</p>
             </div>
             
             <!-- Receipt details -->
@@ -169,13 +169,7 @@ $to_office = $to_office_stmt->fetch();
                         <div class="receipt-item">
                             <div class="row">
                                 <div class="col-6">Примерное время доставки:</div>
-                                <div class="col-6">
-                                    <?php if ($order['desired_date'] && $order['desired_date'] !== '0000-00-00'): ?>
-                                        <?= date('d.m.Y', strtotime($order['desired_date'])) ?>
-                                    <?php else: ?>
-                                        <?= $order['delivery_hours'] ? round($order['delivery_hours']/24) . ' дней' : '2-3 дня' ?>
-                                    <?php endif; ?>
-                                </div>
+                                <div class="col-6"><?= $order['delivery_hours'] ?> часов</div>
                             </div>
                         </div>
                     </div>
@@ -230,7 +224,7 @@ $to_office = $to_office_stmt->fetch();
                             </h2>
                             <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body">
-                                    Мы предоставляем гарантию на доставку согласно условиям выбранной службы. Среднее время доставки составляет 1-2 дня.
+                                    Мы предоставляем гарантию на доставку согласно условиям выбранной службы. Среднее время доставки составляет <?= $order['delivery_hours'] ?> часов.
                                 </div>
                             </div>
                         </div>
