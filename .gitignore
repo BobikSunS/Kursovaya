@@ -1,0 +1,72 @@
+```php
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+*.class
+*.dll
+*.so
+*.a
+*.exe
+*.out
+
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+*.phar
+
+# Build and distribution
+dist/
+build/
+target/
+*.zip
+*.tar
+*.gz
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Environment and configuration
+.env
+.env.local
+.env.*
+.env.local.*
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Cache and test
+.cache/
+coverage/
+htmlcov/
+.coverage
+.mypy_cache/
+.pytest_cache/
+.php_cs.cache
+
+# OS generated files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+Thumbs.db
+```
