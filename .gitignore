@@ -1,1 +1,12 @@
-(empty)
+```
+# Backup files
+*.bak
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# Logs
+*.log
+```
