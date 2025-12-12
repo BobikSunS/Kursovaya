@@ -145,13 +145,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if (in_array('tracking_status', $existing_columns)) {
                 $update_fields[] = "tracking_status = ?";
-                $update_values[] = 'paid';
+                $update_values[] = 'created';
             }
             
             if (!empty($update_fields)) {
                 $update_values[] = $order_id; // for WHERE clause
                 $stmt_update = $db->prepare("UPDATE orders SET " . implode(", ", $update_fields) . " WHERE id = ?");
                 $stmt_update->execute($update_values);
+            }
+
+            // Add initial status to tracking history
+            $tables_query = $db->query("SHOW TABLES LIKE 'tracking_status_history'");
+            if ($tables_query->rowCount() > 0) {
+                $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
+                $status_stmt->execute([$order_id, 'created', 'Заказ создан', $user['name'] ?? $user['email'] ?? 'user']);
             }
 
             // Redirect to history page after successful order creation

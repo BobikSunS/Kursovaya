@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     try {
         // Verify that the order belongs to the current user
-        $stmt = $db->prepare("SELECT id FROM orders WHERE id = ? AND user_id = ?");
+        $stmt = $db->prepare("SELECT id, tracking_status FROM orders WHERE id = ? AND user_id = ?");
         $stmt->execute([$order_id, $user['id']]);
         $order = $stmt->fetch();
         
@@ -39,6 +39,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt->execute([$new_status, $order_id]);
         
         if ($result) {
+            // If the new status is 'delivered', update the delivery date
+            if ($new_status === 'delivered') {
+                $delivery_stmt = $db->prepare("UPDATE orders SET delivery_date = CURDATE() WHERE id = ?");
+                $delivery_stmt->execute([$order_id]);
+            }
+            
             // Add to status history
             $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
             $status_stmt->execute([
