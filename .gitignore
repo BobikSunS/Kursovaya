@@ -5,8 +5,6 @@
 __pycache__/
 *.o
 *.obj
-*.log
-*.tmp
 
 # Dependencies
 vendor/
