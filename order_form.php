@@ -157,8 +157,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Add initial status to tracking history
             $tables_query = $db->query("SHOW TABLES LIKE 'tracking_status_history'");
             if ($tables_query->rowCount() > 0) {
-                $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, ?, ?)");
-                $status_stmt->execute([$order_id, 'created', 'Заказ создан']);
+                $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
+                $status_stmt->execute([$order_id, 'created', 'Заказ создан', $user['name'] ?? $user['email'] ?? 'user']);
             }
 
             // Redirect to history page after successful order creation
