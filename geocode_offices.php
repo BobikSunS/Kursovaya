@@ -37,7 +37,7 @@ function geocodeAddress($address, $city) {
 
 try {
     // Get all offices without coordinates
-    $stmt = $db->query("SELECT id, city, address FROM offices WHERE lat IS NULL OR lng IS NULL");
+    $stmt = $pdo->query("SELECT id, city, address FROM offices WHERE lat IS NULL OR lng IS NULL");
     $offices = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     echo "Found " . count($offices) . " offices without coordinates. Starting geocoding...\n";
@@ -52,7 +52,7 @@ try {
         
         if ($coords) {
             // Update the office with coordinates
-            $updateStmt = $db->prepare("UPDATE offices SET lat = ?, lng = ? WHERE id = ?");
+            $updateStmt = $pdo->prepare("UPDATE offices SET lat = ?, lng = ? WHERE id = ?");
             $updateStmt->execute([$coords['lat'], $coords['lng'], $office['id']]);
             
             echo "Success! Lat: {$coords['lat']}, Lng: {$coords['lng']}\n";
