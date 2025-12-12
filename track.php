@@ -157,9 +157,9 @@ if (!$is_special_status) {
                 </div>
                 <div class="col-md-6">
                     <p><strong>Дата создания:</strong> <?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></p>
-                    <?php if($order['delivery_date']): ?>
+                    <?php if(isset($order['delivery_date']) && $order['delivery_date']): ?>
                         <p><strong>Дата доставки:</strong> <?= date('d.m.Y', strtotime($order['delivery_date'])) ?></p>
-                    <?php elseif($current_status === 'delivered' && $order['updated_at']): ?>
+                    <?php elseif($current_status === 'delivered' && isset($order['updated_at']) && $order['updated_at']): ?>
                         <p><strong>Дата доставки:</strong> <?= date('d.m.Y', strtotime($order['updated_at'])) ?></p>
                     <?php endif; ?>
                     <p><strong>Текущий статус:</strong> 

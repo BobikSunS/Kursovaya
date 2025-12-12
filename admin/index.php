@@ -62,12 +62,18 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_status') {
             $stmt = $db->prepare("UPDATE orders SET tracking_status=? WHERE id=?");
             $stmt->execute([$new_status, $order_id]);
             
+            // If the new status is 'delivered', update the delivery date
+            if ($new_status === 'delivered') {
+                $delivery_stmt = $db->prepare("UPDATE orders SET delivery_date = CURDATE() WHERE id = ?");
+                $delivery_stmt->execute([$order_id]);
+            }
+            
             // Check if tracking_status_history table exists
             $tables_query = $db->query("SHOW TABLES LIKE 'tracking_status_history'");
             if ($tables_query->rowCount() > 0) {
                 // Add to status history if table exists
-                $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, changed_by) VALUES (?, ?, ?)");
-                $stmt->execute([$order_id, $new_status, $_SESSION['user']['name'] ?? 'admin']);
+                $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
+                $stmt->execute([$order_id, $new_status, "Статус изменен на: " . $new_status, $_SESSION['user']['name'] ?? 'admin']);
             }
         } catch (PDOException $e) {
             // Handle error silently or log it
