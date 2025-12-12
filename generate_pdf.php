@@ -100,7 +100,7 @@ $pdf_content = "
         </div>
         <div class='detail-row'>
             <span>Примерное время доставки:</span>
-            <span>" . $order['delivery_hours'] . " часов</span>
+            <span>" . ($order['delivery_hours'] ?? 'Не указано') . " часов</span>
         </div>
     </div>
     
@@ -116,11 +116,11 @@ $pdf_content = "
 </html>
 ";
 
-// Output as PDF using wkhtmltopdf approach or just return HTML
-header('Content-Type: application/pdf');
-header('Content-Disposition: attachment; filename="check_' . $order['track_number'] . '.pdf"');
+// Set headers to force download
+header('Content-Type: text/html; charset=utf-8');
+header('Content-Disposition: attachment; filename="check_' . $order['track_number'] . '.html"');
+header('Cache-Control: private, max-age=0, must-revalidate');
+header('Pragma: public');
 
-// Since we don't have a PDF library, we'll just return the HTML
-// In a real implementation, you would use TCPDF or another PDF library
 echo $pdf_content;
 ?>

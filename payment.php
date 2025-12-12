@@ -34,13 +34,22 @@ if (isset($_POST['confirm_payment'])) {
     $stmt->execute([$order["id"]]);
     
     // Add to status history
-    $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, ?, ?)");
+    $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, created_at) VALUES (?, ?, ?, NOW())");
     $status_stmt->execute([$order["id"], "paid", "Заказ оплачен и обработан"]);
     
     // Update the delivery date if the order is marked as delivered
     if ($order['tracking_status'] === 'delivered') {
-        $update_delivery_date = $db->prepare("UPDATE orders SET delivery_date = CURDATE() WHERE id = ?");
-        $update_delivery_date->execute([$order["id"]]);
+        // Check if delivery_date column exists first
+        $columns_query = $db->query("SHOW COLUMNS FROM orders");
+        $existing_columns = [];
+        while ($row = $columns_query->fetch()) {
+            $existing_columns[] = $row['Field'];
+        }
+        
+        if (in_array('delivery_date', $existing_columns)) {
+            $update_delivery_date = $db->prepare("UPDATE orders SET delivery_date = CURDATE() WHERE id = ?");
+            $update_delivery_date->execute([$order["id"]]);
+        }
     }
 
     // Redirect to success page

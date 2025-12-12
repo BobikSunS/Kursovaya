@@ -59,6 +59,13 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_status') {
     // Update the tracking_status in the orders table if column exists
     if (in_array('tracking_status', $existing_columns)) {
         try {
+            // Get the current status to compare with new status
+            $current_order = $db->prepare("SELECT tracking_status FROM orders WHERE id = ?");
+            $current_order->execute([$order_id]);
+            $current_order_data = $current_order->fetch();
+            $current_status = $current_order_data['tracking_status'] ?? 'created';
+            
+            // Update the tracking_status in the orders table
             $stmt = $db->prepare("UPDATE orders SET tracking_status=? WHERE id=?");
             $stmt->execute([$new_status, $order_id]);
             
@@ -71,9 +78,11 @@ if (isset($_POST['action']) && $_POST['action'] === 'update_status') {
             // Check if tracking_status_history table exists
             $tables_query = $db->query("SHOW TABLES LIKE 'tracking_status_history'");
             if ($tables_query->rowCount() > 0) {
-                // Add to status history if table exists
-                $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$order_id, $new_status, "Статус изменен на: " . $new_status, $_SESSION['user']['name'] ?? 'admin']);
+                // Add to status history if table exists and status actually changed
+                if ($current_status !== $new_status) {
+                    $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, created_at) VALUES (?, ?, ?, NOW())");
+                    $stmt->execute([$order_id, $new_status, "Статус изменен с '{$current_status}' на '{$new_status}'"]);
+                }
             }
         } catch (PDOException $e) {
             // Handle error silently or log it
@@ -441,7 +450,7 @@ $status_options = [
                         <input type="text" id="order-track-search" class="form-control" placeholder="Поиск по трек-номеру заказа...">
                     </div>
                     
-                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <div class="table-responsive">
                         <table class="table table-hover">
                             <thead class="table-dark">
                                 <tr>
