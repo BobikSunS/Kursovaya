@@ -135,8 +135,8 @@ $to_office = $to_office_stmt->fetch();
                         </div>
                         <div class="col-md-6">
                             <h6>Получатель:</h6>
-                            <p><?= htmlspecialchars($order['recipient_name'] ?? ($user['name'] ?? $user['login'])) ?></p>
-                            <p><?= htmlspecialchars($order['recipient_address'] ?? ($to_office['city'] ?? 'Город') . ', ' . ($to_office['address'] ?? 'Адрес')) ?></p>
+                            <p><?= htmlspecialchars($order['recipient_name'] ?? 'Н/Д') ?></p>
+                            <p><?= htmlspecialchars($order['recipient_address'] ?? 'Адрес не указан') ?></p>
                         </div>
                     </div>
                     
@@ -210,9 +210,9 @@ $to_office = $to_office_stmt->fetch();
                                 $insurance_cost = round(($base_cost + $weight_cost) * 0.02, 2);
                             }
                             
-                            // Calculate packaging cost (fixed 5 BYN)
+                            // Calculate packaging cost (fixed 3 BYN)
                             if (!empty($order['packaging'])) {
-                                $packaging_cost = 5.00;
+                                $packaging_cost = 3.00;
                             }
                             
                             // Calculate fragile cost (1% of base + weight cost)
@@ -309,9 +309,9 @@ $to_office = $to_office_stmt->fetch();
 <!-- Footer -->
 <footer class="footer mt-5 py-4 bg-light border-top">
     <div class="container text-center">
-        <p class="mb-1 text-muted" style="opacity: 0.7;">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1 text-muted" style="opacity: 0.7;">Контактный телефон: +375-25-005-50-50</p>
-        <p class="mb-0 text-muted" style="opacity: 0.7;">Email: freedeliverya@gmail.com</p>
+        <p class="mb-1 text-muted" style="opacity: 0.5; color: #999 !important;">&copy; 2025 Служба доставки. Все права защищены.</p>
+        <p class="mb-1 text-muted" style="opacity: 0.5; color: #999 !important;">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0 text-muted" style="opacity: 0.5; color: #999 !important;">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 
