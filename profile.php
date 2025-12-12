@@ -63,9 +63,9 @@ $user = $_SESSION['user'];
 <!-- Footer -->
 <footer class="footer mt-auto py-3" style="background-color: rgba(0,0,0,0.05);">
     <div class="container text-center text-muted">
-        <p class="mb-1">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1">Контактный телефон: +375-25-005-50-50</p>
-        <p class="mb-0">Email: freedeliverya@gmail.com</p>
+        <p class="mb-1" style="opacity: 0.5; color: #999 !important;">&copy; 2025 Служба доставки. Все права защищены.</p>
+        <p class="mb-1" style="opacity: 0.5; color: #999 !important;">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0" style="opacity: 0.5; color: #999 !important;">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 

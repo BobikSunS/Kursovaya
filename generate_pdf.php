@@ -32,7 +32,31 @@ $to_office_stmt = $db->prepare("SELECT * FROM offices WHERE id = ?");
 $to_office_stmt->execute([$order['to_office']]);
 $to_office = $to_office_stmt->fetch();
 
-// Check if TCPDF is available, otherwise use HTML to PDF approach
+// Calculate detailed cost breakdown
+$base_cost = $carrier['base_cost'] ?? 0;
+$weight_cost = $order['weight'] * ($carrier['cost_per_kg'] ?? 0);
+$insurance_cost = 0;
+$packaging_cost = 0;
+$fragile_cost = 0;
+
+// Calculate insurance cost (2% of base + weight cost)
+if (!empty($order['insurance'])) {
+    $insurance_cost = round(($base_cost + $weight_cost) * 0.02, 2);
+}
+
+// Calculate packaging cost (fixed 3 BYN)
+if (!empty($order['packaging'])) {
+    $packaging_cost = 3.00;
+}
+
+// Calculate fragile cost (1% of base + weight cost)
+if (!empty($order['fragile'])) {
+    $fragile_cost = round(($base_cost + $weight_cost) * 0.01, 2);
+}
+
+$calculated_total = $base_cost + $weight_cost + $insurance_cost + $packaging_cost + $fragile_cost;
+
+// Generate PDF content
 $pdf_content = "
 <!DOCTYPE html>
 <html>
@@ -45,6 +69,8 @@ $pdf_content = "
         .company-info { margin-bottom: 20px; }
         .order-details { margin: 15px 0; }
         .detail-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; }
+        .cost-breakdown { margin: 15px 0; }
+        .cost-item { display: flex; justify-content: space-between; padding: 3px 0; }
         .total { font-size: 18px; font-weight: bold; text-align: right; margin-top: 20px; }
         .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
     </style>
@@ -52,7 +78,7 @@ $pdf_content = "
 <body>
     <div class='header'>
         <h2>Чек об оплате</h2>
-        <h3>Служба доставки \"Express Delivery\"</h3>
+        <h3>Служба доставки \\\"Express Delivery\\\"</h3>
     </div>
     
     <div class='company-info'>
@@ -70,13 +96,13 @@ $pdf_content = "
     <div style='display: flex; margin: 20px 0;'>
         <div style='flex: 1;'>
             <h4>Отправитель:</h4>
-            <p>ООО \"Продавец\"</p>
-            <p>г. Минск</p>
+            <p>" . htmlspecialchars($order['full_name'] ?? 'Н/Д') . "</p>
+            <p>" . htmlspecialchars($order['home_address'] ?? 'Адрес не указан') . "</p>
         </div>
         <div style='flex: 1;'>
             <h4>Получатель:</h4>
-            <p>" . htmlspecialchars($user['name'] ?? $user['login']) . "</p>
-            <p>" . htmlspecialchars($to_office['city'] ?? 'Город') . ", " . htmlspecialchars($to_office['address'] ?? 'Адрес') . "</p>
+            <p>" . htmlspecialchars($order['recipient_name'] ?? 'Н/Д') . "</p>
+            <p>" . htmlspecialchars($order['recipient_address'] ?? 'Адрес не указан') . "</p>
         </div>
     </div>
     
@@ -104,8 +130,36 @@ $pdf_content = "
         </div>
     </div>
     
+    <div class='cost-breakdown'>
+        <h4>Дополнительная информация:</h4>
+        <p>Документы: Накладная, Товарный чек</p>
+        <p>Способ оплаты: Онлайн</p>
+        
+        <h4>Расшифровка стоимости:</h4>
+        <div class='cost-item'><span>Базовая стоимость:</span> <span>" . number_format($base_cost, 2) . " BYN</span></div>
+        <div class='cost-item'><span>Доставка (" . $order['weight'] . " кг × " . number_format($carrier['cost_per_kg'] ?? 0, 2) . " BYN/кг):</span> <span>" . number_format($weight_cost, 2) . " BYN</span></div>";
+        
+        if (!empty($order['insurance'])) {
+            $pdf_content .= "
+        <div class='cost-item'><span>Страховка (2%):</span> <span>" . number_format($insurance_cost, 2) . " BYN</span></div>";
+        }
+        
+        if (!empty($order['packaging'])) {
+            $pdf_content .= "
+        <div class='cost-item'><span>Упаковка:</span> <span>" . number_format($packaging_cost, 2) . " BYN</span></div>";
+        }
+        
+        if (!empty($order['fragile'])) {
+            $pdf_content .= "
+        <div class='cost-item'><span>Хрупкая посылка (1%):</span> <span>" . number_format($fragile_cost, 2) . " BYN</span></div>";
+        }
+        
+        $pdf_content .= "
+        <div class='cost-item' style='border-top: 1px solid #000; font-weight: bold;'><span>Итого:</span> <span>" . number_format($calculated_total, 2) . " BYN</span></div>
+    </div>
+    
     <div class='total'>
-        Итого: <span style='color: #28a745;'>" . number_format($order['cost'], 2) . " BYN</span>
+        Итоговая сумма: <span style='color: #28a745;'>" . number_format($order['cost'], 2) . " BYN</span>
     </div>
     
     <div class='footer'>
