@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             if (in_array('tracking_status', $existing_columns)) {
                 $update_fields[] = "tracking_status = ?";
-                $update_values[] = 'Создан';
+                $update_values[] = 'paid';
             }
             
             if (!empty($update_fields)) {
@@ -154,8 +154,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt_update->execute($update_values);
             }
 
-            // Redirect to payment page after successful order creation
-            header("Location: payment.php?order_id=$order_id");
+            // Redirect to history page after successful order creation
+            header("Location: history.php");
             exit;
 
         } catch (Exception $e) {
@@ -457,27 +457,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <!-- Способ оплаты -->
-                    <div class="form-section">
-                        <h4 class="section-title">Способ оплаты</h4>
-                        
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label class="form-label fw-bold">Способ оплаты</label>
-                                <select name="payment_method" class="form-select">
-                                    <option value="cash" <?= (!isset($_POST['payment_method']) || $_POST['payment_method'] == 'cash') ? 'selected' : '' ?>>Наличные</option>
-                                    <option value="card" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'card') ? 'selected' : '' ?>>Карта онлайн</option>
-                                    <option value="account" <?= (isset($_POST['payment_method']) && $_POST['payment_method'] == 'account') ? 'selected' : '' ?>>На расчетный счет</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
 
 
                     <!-- Кнопки управления -->
                     <div class="d-grid gap-3 d-md-flex justify-content-md-center">
                         <a href="calculator.php" class="btn btn-secondary btn-lg">Вернуться к калькулятору</a>
-                        <button type="submit" class="btn btn-success btn-lg px-5">Оформить заказ</button>
+                        <button type="submit" class="btn btn-success btn-lg px-5">К Оплате</button>
                     </div>
                 </form>
             <?php endif; ?>
