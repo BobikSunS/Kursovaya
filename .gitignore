@@ -4,75 +4,45 @@
 __pycache__/
 *.o
 *.obj
-*.exe
+*.class
 *.dll
 *.so
-*.class
-*.jar
-*.war
-*.ear
-*.bin
+*.a
+*.exe
 *.out
 
 # Dependencies
 node_modules/
-vendor/
-composer.lock
-*.lock
+venv/
+.venv/
 .env
 .env.local
-.env.*
+*.env.*
 
-# Build and distribution
+# Build directories
 dist/
 build/
 target/
-release/
-debug/
-
-# Logs and temporary files
-*.log
-*.tmp
-*.temp
-*.swp
-*.swo
-*.bak
-*.backup
-
-# OS generated files
-.DS_Store
-Thumbs.db
-desktop.ini
-*.DS_Store
-ehthumbs.db
-
-# IDE specific
-.vscode/
-.idea/
-*.iml
-*.ipr
-*.iws
-.settings/
-.project
-.classpath
-.pydevproject
-
-# Testing and coverage
-.coverage
 coverage/
 htmlcov/
-.nyc_output/
-test-results/
-
-# Cache directories
-.cache/
 .mypy_cache/
 .pytest_cache/
-.tox/
-.hypothesis/
-*.egg-info/
 
-# Compression and archives
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+*.swo
+
+# Editors
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -95,20 +65,4 @@ test-results/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# PHP specific
-*.php~
-*.php.bak
-*.php.swp
-.php_cs
-.php_cs.dist
-vendor/composer/
-composer.lock
-
-# Web specific
-.htaccess
-.webassets-cache
-*.min.js
-*.min.css
-*.map
 ```

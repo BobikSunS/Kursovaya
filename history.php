@@ -182,9 +182,9 @@ $orders->execute([$user['id']]);
 <!-- Footer -->
 <footer class="footer mt-5 py-4 bg-light border-top">
     <div class="container text-center">
-        <p class="mb-1">&copy; 2025 Служба доставки. Все права защищены.</p>
-        <p class="mb-1">Контактный телефон: +375-25-005-50-50</p>
-        <p class="mb-0">Email: freedeliverya@gmail.com</p>
+        <p class="mb-1 text-muted" style="opacity: 0.7;">&copy; 2025 Служба доставки. Все права защищены.</p>
+        <p class="mb-1 text-muted" style="opacity: 0.7;">Контактный телефон: +375-25-005-50-50</p>
+        <p class="mb-0 text-muted" style="opacity: 0.7;">Email: freedeliverya@gmail.com</p>
     </div>
 </footer>
 
