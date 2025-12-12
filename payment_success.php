@@ -135,8 +135,8 @@ $to_office = $to_office_stmt->fetch();
                         </div>
                         <div class="col-md-6">
                             <h6>Получатель:</h6>
-                            <p><?= htmlspecialchars($order['recipient_name'] ?? 'Н/Д') ?></p>
-                            <p><?= htmlspecialchars($order['recipient_address'] ?? 'Адрес не указан') ?></p>
+                            <p><?= htmlspecialchars($order['full_name'] ?? 'Н/Д') ?></p>
+                            <p><?= htmlspecialchars($order['home_address'] ?? 'Адрес не указан') ?></p>
                         </div>
                     </div>
                     

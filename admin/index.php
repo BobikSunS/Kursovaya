@@ -112,6 +112,34 @@ if (isset($_POST['action']) && $_POST['action'] === 'delete_office') {
     }
 }
 
+// Обработка добавления нового маршрута
+if (isset($_POST['action']) && $_POST['action'] === 'add_route') {
+    $from_office = (int)($_POST['from_office'] ?? 0);
+    $to_office = (int)($_POST['to_office'] ?? 0);
+    $distance = (int)($_POST['distance'] ?? 0);
+    
+    if ($from_office > 0 && $to_office > 0 && $distance > 0) {
+        // Проверим, что маршрут не существует
+        $check_stmt = $db->prepare("SELECT COUNT(*) FROM routes WHERE from_office = ? AND to_office = ?");
+        $check_stmt->execute([$from_office, $to_office]);
+        if ($check_stmt->fetchColumn() == 0) {
+            $stmt = $db->prepare("INSERT INTO routes (from_office, to_office, distance_km) VALUES (?, ?, ?)");
+            $stmt->execute([$from_office, $to_office, $distance]);
+        }
+    }
+}
+
+// Обработка удаления маршрута
+if (isset($_POST['action']) && $_POST['action'] === 'delete_route') {
+    $from_office = (int)($_POST['from_office'] ?? 0);
+    $to_office = (int)($_POST['to_office'] ?? 0);
+    
+    if ($from_office > 0 && $to_office > 0) {
+        $stmt = $db->prepare("DELETE FROM routes WHERE from_office = ? AND to_office = ?");
+        $stmt->execute([$from_office, $to_office]);
+    }
+}
+
 // Статистика
 $total_orders = $db->query("SELECT COUNT(*) FROM orders")->fetchColumn();
 $total_revenue = $db->query("SELECT SUM(cost) FROM orders")->fetchColumn() ?: 0;
@@ -450,9 +478,9 @@ $status_options = [
                         <input type="text" id="order-track-search" class="form-control" placeholder="Поиск по трек-номеру заказа...">
                     </div>
                     
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                         <table class="table table-hover">
-                            <thead class="table-dark">
+                            <thead class="table-dark sticky-top">
                                 <tr>
                                     <th>Трек</th>
                                     <th>Статус</th>
@@ -460,7 +488,7 @@ $status_options = [
                                 </tr>
                             </thead>
                             <tbody id="order-status-table-body">
-                                <?php foreach($recent_orders as $order): ?>
+                                <?php foreach(array_slice($recent_orders, 0, 10) as $order): ?>
                                 <tr>
                                     <td><strong><?= htmlspecialchars($order['track_number']) ?></strong></td>
                                     <td>

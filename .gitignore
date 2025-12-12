@@ -1,71 +1,37 @@
-```php
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
-*.obj
-dist/
-build/
-*.class
-*.exe
-*.dll
-*.so
-*.a
-*.out
+```
+# Database dumps
+database_dump.sql
 
-# Dependencies
-node_modules/
-vendor/
-composer.lock
-*.phar
+# Environment files
+.env
+.env.local
+*.env.*
 
-# Logs and temp files
+# Logs
 *.log
+
+# Temporary files
 *.tmp
 *.swp
 *.swo
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Coverage and testing
-.coverage
-coverage/
-htmlcov/
 
 # OS generated files
 .DS_Store
 Thumbs.db
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# Dependencies
+node_modules/
+vendor/
+composer.lock
+
+# Build artifacts
+dist/
+build/
+*.phar
+
+# IDE files
+.vscode/
+.idea/
+*.project
+*.pydevproject
 ```
