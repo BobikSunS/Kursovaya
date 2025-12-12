@@ -1,4 +1,3 @@
-<<<<<<< qwen-code-cbc39917-25a7-4be8-ad75-6fd27df665a3
 ```
 # Compiled and build artifacts
 *.pyc
@@ -43,6 +42,4 @@ htmlcov/
 .DS_Store
 Thumbs.db
 ```
-=======
-Nothing needs to be added to .gitignore since the changes only include PHP source files (.php) which are legitimate project files that should be tracked in version control.
 >>>>>>> qwen-code-ae782e66-e406-4adb-9623-1cd9432c9f6e
