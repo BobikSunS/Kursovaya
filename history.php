@@ -66,24 +66,49 @@ $orders->execute([$user['id']]);
                             $status_badge = 'bg-secondary';
                             switch(strtolower($status)) {
                                 case 'created':
-                                case 'оформлен':
+                                case 'создан':
                                     $status_badge = 'bg-success';
-                                    $status_text = 'Оформлен';
+                                    $status_text = 'Создан';
                                     break;
-                                case 'processed':
-                                case 'обработан':
+                                case 'paid':
+                                case 'оплачен':
                                     $status_badge = 'bg-info';
-                                    $status_text = 'Обработан';
+                                    $status_text = 'Оплачен';
                                     break;
                                 case 'in_transit':
                                 case 'в пути':
                                     $status_badge = 'bg-warning';
                                     $status_text = 'В пути';
                                     break;
+                                case 'sort_center':
+                                case 'сорт. центр':
+                                    $status_badge = 'bg-warning';
+                                    $status_text = 'Сорт. центр';
+                                    break;
+                                case 'out_for_delivery':
+                                case 'у курьера':
+                                    $status_badge = 'bg-warning';
+                                    $status_text = 'У курьера';
+                                    break;
                                 case 'delivered':
                                 case 'доставлен':
                                     $status_badge = 'bg-success';
                                     $status_text = 'Доставлен';
+                                    break;
+                                case 'delayed':
+                                case 'задерживается':
+                                    $status_badge = 'bg-danger';
+                                    $status_text = 'Задерживается';
+                                    break;
+                                case 'cancelled':
+                                case 'отменен':
+                                    $status_badge = 'bg-dark';
+                                    $status_text = 'Отменен';
+                                    break;
+                                case 'returned':
+                                case 'возвращен':
+                                    $status_badge = 'bg-secondary';
+                                    $status_text = 'Возвращен';
                                     break;
                                 case 'pending':
                                 case 'ожидает':

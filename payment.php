@@ -30,12 +30,12 @@ $success = false;
 // Handle payment confirmation
 if (isset($_POST['confirm_payment'])) {
     // Update order status to paid/confirmed
-    $stmt = $db->prepare("UPDATE orders SET payment_status = 'paid', tracking_status = 'processed' WHERE id = ?");
+    $stmt = $db->prepare("UPDATE orders SET payment_status = 'paid', tracking_status = 'paid' WHERE id = ?");
     $stmt->execute([$order["id"]]);
     
     // Add to status history
     $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, ?, ?)");
-    $status_stmt->execute([$order["id"], "processed", "Заказ оплачен и обработан"]);
+    $status_stmt->execute([$order["id"], "paid", "Заказ оплачен и обработан"]);
 
     // Redirect to success page
     header("Location: payment_success.php?order_id=" . $order["id"]);
@@ -162,7 +162,7 @@ $carrier = $carrier_stmt->fetch();
                                     <span class="badge bg-<?= 
                                         (isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['delivered', 'доставлен'])) ? 'success' : 
                                         ((isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['in_transit', 'в пути'])) ? 'warning' : 
-                                        ((isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['processed', 'обработан'])) ? 'info' : 
+                                        ((isset($order['tracking_status']) && in_array(strtolower($order['tracking_status']), ['paid', 'оплачен'])) ? 'info' : 
                                         'secondary'))
                                     ?>">
                                         <?= htmlspecialchars($order['tracking_status'] ?? 'Создан') ?>

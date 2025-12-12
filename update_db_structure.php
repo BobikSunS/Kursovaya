@@ -17,7 +17,8 @@ try {
         'payment_method VARCHAR(50) DEFAULT \'cash\'',
         'comment TEXT DEFAULT NULL',
         'tracking_status VARCHAR(50) DEFAULT \'created\'',
-        'payment_status VARCHAR(20) DEFAULT \'pending\''
+        'payment_status VARCHAR(20) DEFAULT \'pending\'',
+        'delivery_date DATE DEFAULT NULL'
     ];
 
     foreach ($columns_to_add as $column) {

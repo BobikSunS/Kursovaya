@@ -166,14 +166,14 @@ $offices = $db->query("SELECT o.*, c.name as carrier_name FROM offices o LEFT JO
 // Define status options
 $status_options = [
     'created' => 'Создан',
-    'processed' => 'Обработан',
+    'paid' => 'Оплачен',
     'in_transit' => 'В пути',
     'sort_center' => 'Сорт. центр',
-    'delayed' => 'Задержка',
     'out_for_delivery' => 'У курьера',
     'delivered' => 'Доставлен',
-    'returned' => 'Возвращен',
-    'cancelled' => 'Отменен'
+    'delayed' => 'Задерживается',
+    'cancelled' => 'Отменен',
+    'returned' => 'Возвращен'
 ];
 ?>
 
@@ -454,18 +454,21 @@ $status_options = [
                                         </span>
                                     </td>
                                     <td>
-                                        <form method="POST" class="d-inline status-form" onsubmit="updateStatus(event, <?= $order['id'] ?>)">
-                                            <input type="hidden" name="action" value="update_status">
-                                            <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
-                                            <select name="new_status" class="form-select form-select-sm d-inline w-auto me-1 status-select" data-order-id="<?= $order['id'] ?>">
-                                                <?php foreach($status_options as $status_key => $status_name): ?>
-                                                <option value="<?= $status_key ?>" <?= (($order['tracking_status'] ?? 'created') == $status_key) ? 'selected' : '' ?>>
-                                                    <?= $status_name ?>
-                                                </option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <button class="btn btn-sm btn-warning">Изменить</button>
-                                        </form>
+                                        <div class="d-flex flex-column gap-1">
+                                            <form method="POST" class="d-inline status-form" onsubmit="updateStatus(event, <?= $order['id'] ?>)">
+                                                <input type="hidden" name="action" value="update_status">
+                                                <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                                <select name="new_status" class="form-select form-select-sm d-inline w-auto me-1 status-select" data-order-id="<?= $order['id'] ?>">
+                                                    <?php foreach($status_options as $status_key => $status_name): ?>
+                                                    <option value="<?= $status_key ?>" <?= (($order['tracking_status'] ?? 'created') == $status_key) ? 'selected' : '' ?>>
+                                                        <?= $status_name ?>
+                                                    </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                                <button class="btn btn-sm btn-warning">Изменить</button>
+                                            </form>
+                                            <a href="../track.php?track=<?= urlencode($order['track_number']) ?>" class="btn btn-sm btn-primary">Перейти</a>
+                                        </div>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>
@@ -612,17 +615,17 @@ document.getElementById('office-search').addEventListener('input', function() {
     }
 });
 
-// Search functionality for orders
-document.getElementById('order-search').addEventListener('input', function() {
+// Search functionality for orders by track number
+document.getElementById('order-track-search').addEventListener('input', function() {
     const searchTerm = this.value.toLowerCase();
-    const tableBody = document.getElementById('order-table-body');
+    const tableBody = document.getElementById('order-status-table-body');
     const rows = tableBody.getElementsByTagName('tr');
     
     for (let i = 0; i < rows.length; i++) {
-        const userCell = rows[i].querySelector('td:nth-child(2)'); // User name is in 2nd column
-        if (userCell) {
-            const userText = userCell.textContent.toLowerCase();
-            if (userText.includes(searchTerm)) {
+        const trackCell = rows[i].querySelector('td:first-child'); // Track number is in first column
+        if (trackCell) {
+            const trackText = trackCell.textContent.toLowerCase();
+            if (trackText.includes(searchTerm)) {
                 rows[i].style.display = '';
             } else {
                 rows[i].style.display = 'none';
