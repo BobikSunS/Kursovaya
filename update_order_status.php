@@ -46,12 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
             
             // Add to status history
-            $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description, changed_by) VALUES (?, ?, ?, ?)");
+            $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, ?, ?)");
             $status_stmt->execute([
                 $order_id, 
                 $new_status, 
-                "Статус изменен на: " . $new_status, 
-                $user['name'] ?? $user['email'] ?? 'user'
+                "Статус изменен на: " . $new_status
             ]);
             
             echo json_encode(['success' => true, 'message' => 'Status updated successfully']);
