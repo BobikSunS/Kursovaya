@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Get user info
-$stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$user_id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -68,17 +68,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SERVER['CONTENT_TYPE']) && 
         $track_number = strtoupper(bin2hex(random_bytes(10)));
 
         // Insert order
-        $stmt = $db->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, delivery_hours, track_number, full_name, home_address, pickup_city, pickup_address, delivery_city, delivery_address, desired_date, insurance, packaging, fragile, payment_method, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, delivery_hours, track_number, full_name, home_address, pickup_city, pickup_address, delivery_city, delivery_address, desired_date, insurance, packaging, fragile, payment_method, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([
             $user_id, $carrier_id, $from_office, $to_office, $weight, $total_cost, $delivery_hours, $track_number,
             $full_name, $home_address, $pickup_city, $pickup_address, $delivery_city, $delivery_address,
             $desired_date, $insurance, $packaging, $fragile, $payment_method, $comment
         ]);
 
-        $order_id = $db->lastInsertId();
+        $order_id = $pdo->lastInsertId();
         
         // Add initial status to tracking history
-        $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, 'created', 'Заказ создан')");
+        $stmt = $pdo->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, 'created', 'Заказ создан')");
         $stmt->execute([$order_id]);
 
         echo json_encode(['success' => true, 'order_id' => $order_id, 'track_number' => $track_number]);
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         try {
             // Get carrier information
-            $stmt = $db->prepare("SELECT base_cost, cost_per_km, cost_per_kg, speed_kmh FROM carriers WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT base_cost, cost_per_km, cost_per_kg, speed_kmh FROM carriers WHERE id = ?");
             $stmt->execute([$carrier_id]);
             $carrier = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             } else {
                 // Calculate distance between offices to determine cost
                 // Since we removed the routes table, we'll calculate based on coordinates if available
-                $stmt = $db->prepare("SELECT lat, lng FROM offices WHERE id = ? OR id = ?");
+                $stmt = $pdo->prepare("SELECT lat, lng FROM offices WHERE id = ? OR id = ?");
                 $stmt->execute([$from_office, $to_office]);
                 $offices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
@@ -171,7 +171,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $delivery_hours = $realistic_distance / $speed;
                     } else {
                         // Fallback to old method if coordinates not available
-                        $stmt = $db->prepare("SELECT distance_km FROM routes WHERE from_office = ? AND to_office = ?");
+                        $stmt = $pdo->prepare("SELECT distance_km FROM routes WHERE from_office = ? AND to_office = ?");
                         $stmt->execute([$from_office, $to_office]);
                         $route = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         $track_number = strtoupper(bin2hex(random_bytes(10)));
 
                         // Insert order
-                        $stmt = $db->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, delivery_hours, track_number, full_name, home_address, pickup_city, pickup_address, delivery_city, delivery_address, desired_date, insurance, packaging, fragile, payment_method, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt = $pdo->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, delivery_hours, track_number, full_name, home_address, pickup_city, pickup_address, delivery_city, delivery_address, desired_date, insurance, packaging, fragile, payment_method, comment) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
                         $stmt->execute([
                             $user_id, $carrier_id, $from_office, $to_office, $weight, $cost, $delivery_hours, $track_number,
                             $full_name, $home_address, $pickup_city, $pickup_address, $delivery_city, $delivery_address,
@@ -209,10 +209,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         ]);
 
                         // Add initial status to tracking history
-                        $stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, 'created', 'Заказ создан')");
-                        $stmt->execute([$db->lastInsertId()]);
+                        $stmt = $pdo->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, 'created', 'Заказ создан')");
+                        $stmt->execute([$pdo->lastInsertId()]);
 
-                        header('Location: payment.php?order_id=' . $db->lastInsertId());
+                        header('Location: payment.php?order_id=' . $pdo->lastInsertId());
                         exit;
                     }
                 }
@@ -304,7 +304,7 @@ function calculateHaversineDistance($lat1, $lon1, $lat2, $lon2) {
                         <select class="form-select" id="from_office" name="from_office" required>
                             <option value="">Выберите отделение</option>
                             <?php
-                            $stmt = $db->query("SELECT o.id, o.city, o.address, c.name as carrier_name FROM offices o JOIN carriers c ON o.carrier_id = c.id ORDER BY c.name, o.city, o.address");
+                            $stmt = $pdo->query("SELECT o.id, o.city, o.address, c.name as carrier_name FROM offices o JOIN carriers c ON o.carrier_id = c.id ORDER BY c.name, o.city, o.address");
                             $offices = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             foreach ($offices as $office) {
                                 echo '<option value="' . $office['id'] . '">' . htmlspecialchars($office['city']) . ', ' . htmlspecialchars($office['address']) . ' (' . htmlspecialchars($office['carrier_name']) . ')</option>';
@@ -332,7 +332,7 @@ function calculateHaversineDistance($lat1, $lon1, $lat2, $lon2) {
                         <select class="form-select" id="carrier_id" name="carrier_id" required>
                             <option value="">Выберите перевозчика</option>
                             <?php
-                            $stmt = $db->query("SELECT id, name FROM carriers ORDER BY name");
+                            $stmt = $pdo->query("SELECT id, name FROM carriers ORDER BY name");
                             $carriers = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             foreach ($carriers as $carrier) {
                                 echo '<option value="' . $carrier['id'] . '">' . htmlspecialchars($carrier['name']) . '</option>';
