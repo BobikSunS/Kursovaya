@@ -45,6 +45,9 @@ $orders->execute([$user['id']]);
 </nav>
 <div class="container mt-5">
     <h2 class="text-white">История заказов</h2>
+    <?php if (isset($_GET['message']) && $_GET['message'] === 'order_already_paid'): ?>
+        <div class="alert alert-info">Этот заказ уже оплачен.</div>
+    <?php endif; ?>
     <div class="card shadow-lg">
         <div class="card-body">
             <table class="table table-hover">

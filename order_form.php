@@ -84,7 +84,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $track = strtoupper(substr(md5(uniqid()), 0, 12));
 
             // Вставляем заказ в базу данных (без колонок, которые могут отсутствовать в БД)
-            $stmt = $db->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, track_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");
+            // Статус заказа будет pending до подтверждения оплаты
+            $stmt = $db->prepare("INSERT INTO orders (user_id, carrier_id, from_office, to_office, weight, cost, track_number, tracking_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())");
             $stmt->execute([
                 $user['id'], $carrier_id, $from_office, $to_office, $weight, $cost, $track
             ]);
@@ -158,11 +159,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $tables_query = $db->query("SHOW TABLES LIKE 'tracking_status_history'");
             if ($tables_query->rowCount() > 0) {
                 $status_stmt = $db->prepare("INSERT INTO tracking_status_history (order_id, status, description) VALUES (?, ?, ?)");
-                $status_stmt->execute([$order_id, 'created', 'Заказ создан']);
+                $status_stmt->execute([$order_id, 'pending', 'Заказ создан, ожидает оплаты']);
             }
 
-            // Redirect to history page after successful order creation
-            header("Location: history.php");
+            // Redirect to payment page after successful order creation
+            header("Location: payment.php?order_id=" . $order_id);
             exit;
 
         } catch (Exception $e) {
