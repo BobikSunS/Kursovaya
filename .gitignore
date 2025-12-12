@@ -1,1 +1,48 @@
+<<<<<<< qwen-code-cbc39917-25a7-4be8-ad75-6fd27df665a3
+```
+# Compiled and build artifacts
+*.pyc
+__pycache__/
+*.o
+*.obj
+
+# Dependencies
+.venv/
+venv/
+node_modules/
+
+# Logs and temp files
+*.log
+*.tmp
+*.swp
+
+# Environment
+.env
+.env.local
+.env.*
+
+# Editors
+.vscode/
+.idea/
+
+# Distribution and build directories
+dist/
+build/
+target/
+
+# Coverage reports
+coverage/
+htmlcov/
+.coverage
+
+# Python cache
+.mypy_cache/
+.pytest_cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+```
+=======
 Nothing needs to be added to .gitignore since the changes only include PHP source files (.php) which are legitimate project files that should be tracked in version control.
+>>>>>>> qwen-code-ae782e66-e406-4adb-9623-1cd9432c9f6e
