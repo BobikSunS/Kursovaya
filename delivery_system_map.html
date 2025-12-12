@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карта доставки по Беларуси</title>
+    
+    <!-- Подключение Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .sidebar {
+            width: 300px;
+            background-color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .map-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #0056b3;
+        }
+        
+        .route-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+        
+        .route-details {
+            margin-top: 10px;
+        }
+        
+        .instructions {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .office-marker {
+            background-color: #fff;
+            border: 2px solid #333;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        
+        .selected {
+            background-color: #ff0000 !important;
+            border-color: #cc0000 !important;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 4px;
+            width: 80%;
+            max-width: 500px;
+        }
+        
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Карта доставки</h2>
+            
+            <div class="form-group">
+                <label for="carrier-select">Выберите компанию:</label>
+                <select id="carrier-select">
+                    <option value="">Все компании</option>
+                    <option value="1">Белпочта</option>
+                    <option value="2">DPD</option>
+                    <option value="3">СДЭК (CDEK)</option>
+                    <option value="4">Европочта</option>
+                    <option value="5">Boxberry</option>
+                    <option value="6">Autolight Express</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="from-office">Отделение отправления:</label>
+                <select id="from-office">
+                    <option value="">Выберите отделение</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="to-office">Отделение назначения:</label>
+                <select id="to-office">
+                    <option value="">Выберите отделение</option>
+                </select>
+            </div>
+            
+            <button onclick="calculateRoute()">Рассчитать маршрут</button>
+            
+            <div id="route-info" class="route-info" style="display: none;">
+                <h4>Информация о маршруте:</h4>
+                <div class="route-details">
+                    <p><strong>Расстояние:</strong> <span id="distance">-</span> км</p>
+                    <p><strong>Время в пути:</strong> <span id="duration">-</span> ч</p>
+                    <p><strong>Стоимость:</strong> <span id="cost">-</span> BYN</p>
+                </div>
+                
+                <div class="instructions">
+                    <h5>Маршрутные инструкции:</h5>
+                    <div id="instructions"></div>
+                </div>
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <h4>Инструкция по использованию:</h4>
+                <ul style="padding-left: 20px; font-size: 12px;">
+                    <li>Выберите компанию для фильтрации отделений</li>
+                    <li>Выберите отделения отправления и назначения</li>
+                    <li>Нажмите "Рассчитать маршрут"</li>
+                    <li>Или кликните на карту для выбора отделений</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+    
+    <!-- Подключение Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Инициализация карты
+        const map = L.map('map').setView([53.904133, 27.557541], 7); // Центр Беларуси
+        
+        // Добавление слоя карты OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        // Пример данных отделений (в реальной системе эти данные будут из базы данных)
+        const offices = [
+            {id: 1, carrier_id: 1, name: 'Белпочта - Минск', city: 'Минск', address: 'пр-т Независимости, 10', lat: 53.904133, lng: 27.557541},
+            {id: 2, carrier_id: 1, name: 'Белпочта - Гомель', city: 'Гомель', address: 'ул. Советская, 21', lat: 52.423080, lng: 30.997130},
+            {id: 3, carrier_id: 1, name: 'Белпочта - Брест', city: 'Брест', address: 'ул. Советская, 46', lat: 52.097568, lng: 23.726152},
+            {id: 4, carrier_id: 1, name: 'Белпочта - Гродно', city: 'Гродно', address: 'ул. Ожешко, 1', lat: 53.669409, lng: 23.822534},
+            {id: 5, carrier_id: 1, name: 'Белпочта - Витебск', city: 'Витебск', address: 'ул. Ленина, 20', lat: 55.186700, lng: 30.209722},
+            {id: 6, carrier_id: 1, name: 'Белпочта - Могилёв', city: 'Могилёв', address: 'ул. Первомайская, 42', lat: 53.904100, lng: 30.329200},
+            {id: 9, carrier_id: 2, name: 'DPD - Минск', city: 'Минск', address: 'ул. Притыцкого, 29', lat: 53.884100, lng: 27.480000},
+            {id: 11, carrier_id: 2, name: 'DPD - Гомель', city: 'Гомель', address: 'пр-т Ленина, 10', lat: 52.434500, lng: 31.000000},
+            {id: 15, carrier_id: 3, name: 'СДЭК - Минск', city: 'Минск', address: 'ТЦ Столица', lat: 53.900000, lng: 27.560000},
+            {id: 21, carrier_id: 4, name: 'Европочта - Минск', city: 'Минск', address: 'ул. Кульман, 9', lat: 53.886900, lng: 27.544900},
+            {id: 26, carrier_id: 5, name: 'Boxberry - Минск', city: 'Минск', address: 'ул. Притыцкого, 156', lat: 53.870000, lng: 27.490000},
+            {id: 30, carrier_id: 6, name: 'Autolight Express - Минск', city: 'Минск', address: 'ул. Тимирязева, 123', lat: 53.850000, lng: 27.480000}
+        ];
+        
+        // Цвета для разных компаний
+        const carrierColors = {
+            1: '#d32f2f', // Белпочта
+            2: '#0066cc', // DPD
+            3: '#ff9800', // СДЭК
+            4: '#4caf50', // Европочта
+            5: '#9c27b0', // Boxberry
+            6: '#e91e63'  // Autolight Express
+        };
+        
+        let markers = {};
+        let selectedFromOffice = null;
+        let selectedToOffice = null;
+        let routeLine = null;
+        
+        // Функция для добавления маркеров на карту
+        function addMarkers() {
+            // Очистка существующих маркеров
+            Object.values(markers).forEach(marker => map.removeLayer(marker));
+            markers = {};
+            
+            const selectedCarrier = document.getElementById('carrier-select').value;
+            
+            offices.forEach(office => {
+                // Фильтрация по выбранному перевозчику
+                if (selectedCarrier && office.carrier_id != selectedCarrier) {
+                    return;
+                }
+                
+                const marker = L.circleMarker([office.lat, office.lng], {
+                    radius: 8,
+                    fillColor: carrierColors[office.carrier_id],
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                });
+                
+                marker.bindPopup(`<b>${office.name}</b><br>${office.city}, ${office.address}<br>ID: ${office.id}`);
+                
+                marker.on('click', function(e) {
+                    selectOfficeOnMap(office);
+                });
+                
+                marker.addTo(map);
+                markers[office.id] = marker;
+            });
+        }
+        
+        // Обновление списка отделений в выпадающих списках
+        function updateOfficeLists() {
+            const selectedCarrier = document.getElementById('carrier-select').value;
+            const fromSelect = document.getElementById('from-office');
+            const toSelect = document.getElementById('to-office');
+            
+            // Очистка списков
+            fromSelect.innerHTML = '<option value="">Выберите отделение</option>';
+            toSelect.innerHTML = '<option value="">Выберите отделение</option>';
+            
+            offices.forEach(office => {
+                // Фильтрация по выбранному перевозчику
+                if (!selectedCarrier || office.carrier_id == selectedCarrier) {
+                    const option = document.createElement('option');
+                    option.value = office.id;
+                    option.textContent = `${office.name} (${office.city})`;
+                    
+                    fromSelect.appendChild(option.cloneNode(true));
+                    toSelect.appendChild(option);
+                }
+            });
+        }
+        
+        // Обработка выбора компании
+        document.getElementById('carrier-select').addEventListener('change', function() {
+            addMarkers();
+            updateOfficeLists();
+        });
+        
+        // Инициализация маркеров и списков
+        addMarkers();
+        updateOfficeLists();
+        
+        // Функция для выбора отделения на карте
+        function selectOfficeOnMap(office) {
+            // Определение, какое отделение выбираем (отправления или назначения)
+            if (!selectedFromOffice) {
+                selectedFromOffice = office;
+                document.getElementById('from-office').value = office.id;
+                highlightSelectedMarker(office.id, 'from');
+            } else if (!selectedToOffice) {
+                selectedToOffice = office;
+                document.getElementById('to-office').value = office.id;
+                highlightSelectedMarker(office.id, 'to');
+            } else {
+                // Если уже выбраны оба, сброс и выбор нового пункта отправления
+                clearSelections();
+                selectedFromOffice = office;
+                document.getElementById('from-office').value = office.id;
+                highlightSelectedMarker(office.id, 'from');
+            }
+        }
+        
+        // Подсветка выбранного маркера
+        function highlightSelectedMarker(officeId, type) {
+            // Снятие выделения со всех маркеров
+            Object.keys(markers).forEach(id => {
+                const marker = markers[id];
+                const office = offices.find(o => o.id == id);
+                if (marker && office) {
+                    marker.setStyle({
+                        fillColor: carrierColors[office.carrier_id],
+                        fillOpacity: 0.8
+                    });
+                }
+            });
+            
+            // Выделение выбранного маркера
+            if (markers[officeId]) {
+                markers[officeId].setStyle({
+                    fillColor: type === 'from' ? '#00ff00' : '#ff0000', // Зеленый для отправления, красный для назначения
+                    fillOpacity: 1.0
+                });
+            }
+        }
+        
+        // Очистка выделения
+        function clearSelections() {
+            selectedFromOffice = null;
+            selectedToOffice = null;
+            
+            document.getElementById('from-office').value = '';
+            document.getElementById('to-office').value = '';
+            
+            // Снятие выделения со всех маркеров
+            Object.keys(markers).forEach(id => {
+                const marker = markers[id];
+                const office = offices.find(o => o.id == id);
+                if (marker && office) {
+                    marker.setStyle({
+                        fillColor: carrierColors[office.carrier_id],
+                        fillOpacity: 0.8
+                    });
+                }
+            });
+        }
+        
+        // Обработка изменения в выпадающих списках
+        document.getElementById('from-office').addEventListener('change', function() {
+            const officeId = this.value;
+            if (officeId) {
+                const office = offices.find(o => o.id == officeId);
+                if (office) {
+                    selectedFromOffice = office;
+                    highlightSelectedMarker(officeId, 'from');
+                    map.setView([office.lat, office.lng], 12);
+                }
+            } else {
+                selectedFromOffice = null;
+                if (!selectedToOffice) {
+                    Object.keys(markers).forEach(id => {
+                        const marker = markers[id];
+                        const office = offices.find(o => o.id == id);
+                        if (marker && office) {
+                            marker.setStyle({
+                                fillColor: carrierColors[office.carrier_id],
+                                fillOpacity: 0.8
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        
+        document.getElementById('to-office').addEventListener('change', function() {
+            const officeId = this.value;
+            if (officeId) {
+                const office = offices.find(o => o.id == officeId);
+                if (office) {
+                    selectedToOffice = office;
+                    highlightSelectedMarker(officeId, 'to');
+                    map.setView([office.lat, office.lng], 12);
+                }
+            } else {
+                selectedToOffice = null;
+                if (!selectedFromOffice) {
+                    Object.keys(markers).forEach(id => {
+                        const marker = markers[id];
+                        const office = offices.find(o => o.id == id);
+                        if (marker && office) {
+                            marker.setStyle({
+                                fillColor: carrierColors[office.carrier_id],
+                                fillOpacity: 0.8
+                            });
+                        }
+                    });
+                }
+            }
+        });
+        
+        // Функция для расчета маршрута
+        async function calculateRoute() {
+            if (!selectedFromOffice || !selectedToOffice) {
+                alert('Пожалуйста, выберите оба отделения!');
+                return;
+            }
+            
+            if (selectedFromOffice.id === selectedToOffice.id) {
+                alert('Отделения отправления и назначения не могут совпадать!');
+                return;
+            }
+            
+            // Удаление предыдущего маршрута
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+            
+            try {
+                // Показываем временный прогресс
+                document.getElementById('route-info').style.display = 'block';
+                document.getElementById('distance').textContent = 'Расчет...';
+                document.getElementById('duration').textContent = 'Расчет...';
+                document.getElementById('cost').textContent = 'Расчет...';
+                document.getElementById('instructions').innerHTML = 'Загрузка маршрута...';
+                
+                // В реальной системе здесь будет вызов calculate_route.php
+                // Для демонстрации используем имитацию ответа
+                const routeData = await simulateRouteCalculation(selectedFromOffice, selectedToOffice);
+                
+                // Отображение результата
+                displayRouteResult(routeData);
+                
+                // Рисование маршрута на карте
+                drawRouteOnMap(routeData.geometry);
+                
+            } catch (error) {
+                console.error('Ошибка при расчете маршрута:', error);
+                alert('Ошибка при расчете маршрута. Проверьте подключение к интернету.');
+            }
+        }
+        
+        // Имитация расчета маршрута (в реальной системе это будет вызов API)
+        async function simulateRouteCalculation(fromOffice, toOffice) {
+            // В реальной системе здесь будет HTTP-запрос к calculate_route.php
+            // Для демонстрации возвращаем примерный результат
+            
+            // Приблизительное расстояние между точками (в реальной системе это будет из OSRM)
+            const latDiff = Math.abs(fromOffice.lat - toOffice.lat);
+            const lngDiff = Math.abs(fromOffice.lng - toOffice.lng);
+            const distance = Math.round(Math.sqrt(latDiff * latDiff + lngDiff * lngDiff) * 111); // приблизительно в км
+            const duration = parseFloat((distance / 60).toFixed(2)); // при средней скорости 60 км/ч
+            
+            // Поиск перевозчика для получения тарифов
+            const carrier = carriers.find(c => c.id == fromOffice.carrier_id);
+            const cost = parseFloat((carrier.base_cost + carrier.cost_per_km * distance + carrier.cost_per_kg * 1).toFixed(2)); // для веса 1 кг
+            
+            // Пример геометрии маршрута (в реальной системе это будет из OSRM)
+            const geometry = [
+                [fromOffice.lat, fromOffice.lng],
+                [(fromOffice.lat + toOffice.lat) / 2, (fromOffice.lng + toOffice.lng) / 2],
+                [toOffice.lat, toOffice.lng]
+            ];
+            
+            return {
+                distance: distance,
+                duration: duration,
+                cost: cost,
+                instructions: [
+                    { instruction: `Начните движение из ${fromOffice.name}`, distance: 0 },
+                    { instruction: `Двигайтесь по направлению к ${toOffice.city}`, distance: distance / 2 },
+                    { instruction: `Прибытие в ${toOffice.name}`, distance: distance }
+                ],
+                geometry: geometry
+            };
+        }
+        
+        // Отображение результата маршрута
+        function displayRouteResult(routeData) {
+            document.getElementById('distance').textContent = routeData.distance;
+            document.getElementById('duration').textContent = routeData.duration;
+            document.getElementById('cost').textContent = routeData.cost;
+            
+            let instructionsHtml = '<ul>';
+            routeData.instructions.forEach(step => {
+                instructionsHtml += `<li>${step.instruction} (${step.distance} км)</li>`;
+            });
+            instructionsHtml += '</ul>';
+            document.getElementById('instructions').innerHTML = instructionsHtml;
+            
+            document.getElementById('route-info').style.display = 'block';
+        }
+        
+        // Рисование маршрута на карте
+        function drawRouteOnMap(geometry) {
+            if (routeLine) {
+                map.removeLayer(routeLine);
+            }
+            
+            routeLine = L.polyline(geometry, {
+                color: '#3388ff',
+                weight: 5,
+                opacity: 0.7
+            }).addTo(map);
+            
+            // Прокрутка к маршруту
+            const bounds = L.latLngBounds(geometry);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+        
+        // Данные о перевозчиках (в реальной системе это будет из базы данных)
+        const carriers = [
+            {id: 1, name: 'Белпочта', color: '#d32f2f', max_weight: 30.00, base_cost: 4.50, cost_per_kg: 0.250, cost_per_km: 0.0080, speed_kmh: 60.00},
+            {id: 2, name: 'DPD', color: '#0066cc', max_weight: 30.00, base_cost: 9.00, cost_per_kg: 0.800, cost_per_km: 0.0180, speed_kmh: 95.00},
+            {id: 3, name: 'СДЭК (CDEK)', color: '#ff9800', max_weight: 20.00, max_weight: 20.00, base_cost: 8.50, cost_per_kg: 0.700, cost_per_km: 0.0200, speed_kmh: 90.00},
+            {id: 4, name: 'Европочта', color: '#4caf50', max_weight: 25.00, base_cost: 6.50, cost_per_kg: 0.500, cost_per_km: 0.0120, speed_kmh: 80.00},
+            {id: 5, name: 'Boxberry', color: '#9c27b0', max_weight: 15.00, base_cost: 8.00, cost_per_kg: 0.900, cost_per_km: 0.0220, speed_kmh: 85.00},
+            {id: 6, name: 'Autolight Express', color: '#e91e63', max_weight: 30.00, base_cost: 9.50, cost_per_kg: 0.750, cost_per_km: 0.0190, speed_kmh: 92.00}
+        ];
+    </script>
+</body>
+</html>
