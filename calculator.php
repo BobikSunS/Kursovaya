@@ -422,13 +422,20 @@ function selectCarrier(id, name) {
 
 // Add search functionality to select elements with collapsible dropdown
 function addSearchToSelect(selectElement) {
-    // Remove any existing wrapper to avoid duplication
+    // Check if selectElement is already wrapped - if so, do nothing to prevent duplication
     if (selectElement.parentNode && selectElement.parentNode.classList.contains('custom-select-wrapper')) {
-        // If it's already wrapped, remove the wrapper and restore the original select
-        const wrapper = selectElement.parentNode;
-        const parent = wrapper.parentNode;
-        parent.replaceChild(selectElement, wrapper);
-        selectElement.style.display = 'block'; // Show the original select again
+        // If it's already wrapped, just update the search functionality
+        const searchInput = selectElement.parentNode.querySelector('input[type="text"]');
+        if (searchInput) {
+            // Update the search input with current selected value
+            if (selectElement.value) {
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                if (selectedOption) {
+                    searchInput.value = selectedOption.text;
+                }
+            }
+        }
+        return;
     }
     
     // Create a wrapper div for the custom select
