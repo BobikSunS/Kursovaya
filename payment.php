@@ -25,6 +25,13 @@ if (!$order) {
     exit;
 }
 
+// Check if order is already paid
+if (isset($order['payment_status']) && $order['payment_status'] === 'paid') {
+    // Redirect to order details or show message that order is already paid
+    header('Location: history.php?message=order_already_paid');
+    exit;
+}
+
 $success = false;
 
 // Handle payment confirmation
