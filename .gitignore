@@ -1,16 +1,15 @@
 ```
-# Compiled and build artifacts
+# Compiled and binary files
 *.pyc
 __pycache__/
 
 # Dependencies
 vendor/
-node_modules/
+composer.lock
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
@@ -21,6 +20,7 @@ node_modules/
 .vscode/
 .idea/
 
-# Database
-*.sql
+# OS generated files
+.DS_Store
+Thumbs.db
 ```

@@ -159,8 +159,8 @@ if (!$is_special_status) {
                     <p><strong>Дата создания:</strong> <?= date('d.m.Y H:i', strtotime($order['created_at'])) ?></p>
                     <?php if(isset($order['delivery_date']) && $order['delivery_date']): ?>
                         <p><strong>Дата доставки:</strong> <?= date('d.m.Y', strtotime($order['delivery_date'])) ?></p>
-                    <?php elseif($current_status === 'delivered' && isset($order['updated_at']) && $order['updated_at']): ?>
-                        <p><strong>Дата доставки:</strong> <?= date('d.m.Y', strtotime($order['updated_at'])) ?></p>
+                    <?php elseif($current_status === 'delivered'): ?>
+                        <p><strong>Дата доставки:</strong> <?= date('d.m.Y') ?></p>
                     <?php endif; ?>
                     <p><strong>Текущий статус:</strong> 
                         <span class="badge bg-info"><?= htmlspecialchars($is_special_status ? $special_status[$current_status]['name'] : $status_stages[$current_status]['name']) ?></span>
