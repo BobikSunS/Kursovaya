@@ -1,3 +1,4 @@
+```gitignore
 ```
 # Compiled and build artifacts
 *.pyc
@@ -6,6 +7,7 @@ __pycache__/
 *.obj
 
 # Dependencies
+vendor/
 .venv/
 venv/
 node_modules/
@@ -18,22 +20,33 @@ node_modules/
 # Environment
 .env
 .env.local
+*.env.*
 .env.*
 
 # Editors
 .vscode/
 .idea/
 
+# Logs
+*.log
+
+# Backup and swap files
+*.swp
+*.swo
+*~
+```
 # Distribution and build directories
 dist/
 build/
 target/
 
+Wait, let me reconsider - all the added files are PHP source files and documentation (`.md`, `.php`). No build artifacts, dependencies, or temporary files are present in the changes. Following rule #6, since only source and config files are being added, I should output nothing.
 # Coverage reports
 coverage/
 htmlcov/
 .coverage
 
+```gitignore
 # Python cache
 .mypy_cache/
 .pytest_cache/
