@@ -77,38 +77,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($from === $to) {
         $error = "Нельзя отправить в то же отделение!";
     } else {
-        $carrier = $db->query("SELECT * FROM carriers WHERE id = $carrier_id")->fetch();
-        $pathData = dijkstra($graph, $from, $to);
-        if (!$pathData) {
-            $error = "Маршрут не найден!";
+        // Check if both from and to offices belong to the selected carrier
+        $checkSql = "SELECT id FROM offices WHERE id IN (?, ?) AND carrier_id = ?";
+        $checkStmt = $db->prepare($checkSql);
+        $checkStmt->execute([$from, $to, $carrier_id]);
+        $matchingOffices = $checkStmt->fetchAll();
+        
+        if (count($matchingOffices) != 2) {
+            $error = "Выбранный оператор не обслуживает оба отделения!";
         } else {
-            $distance = $pathData['distance'];
-            $base_hours = $distance / $carrier['speed_kmh'];
-
-            $type = $_POST['package_type'];
-            $insurance = isset($_POST['insurance']);
-
-            $weight = $type === 'letter' 
-                ? 0.02 * (int)($_POST['letter_count'] ?? 1)
-                : max((float)$_POST['weight'], 0); // Remove volume weight calculation since gabarit is removed
-
-            $max_weight = $carrier['max_weight']; // Remove gabarit-based weight increase
-
-            if ($weight > $max_weight) {
-                $error = "Вес превышает лимит оператора ($max_weight кг)!";
+            $carrier = $db->query("SELECT * FROM carriers WHERE id = $carrier_id")->fetch();
+            $pathData = dijkstra($graph, $from, $to);
+            if (!$pathData) {
+                $error = "Маршрут не найден!";
             } else {
-                $cost = $carrier['base_cost'] 
-                      + $weight * $carrier['cost_per_kg'] 
-                      + $distance * $carrier['cost_per_km'];
+                $distance = $pathData['distance'];
+                $base_hours = $distance / $carrier['speed_kmh'];
 
-                if ($insurance) $cost *= 1.02; // Remove gabarit and speed cost calculations
-                if ($type === 'letter') $cost = max($cost, 2.5);
+                $type = $_POST['package_type'];
+                $insurance = isset($_POST['insurance']);
 
-                $cost = round($cost, 2);
-                $hours = round($base_hours, 1);
+                $weight = $type === 'letter' 
+                    ? 0.02 * (int)($_POST['letter_count'] ?? 1)
+                    : max((float)$_POST['weight'], 0); // Remove volume weight calculation since gabarit is removed
 
-                $result = [
-                    'carrier' => $carrier,
+                $max_weight = $carrier['max_weight']; // Remove gabarit-based weight increase
+
+                if ($weight > $max_weight) {
+                    $error = "Вес превышает лимит оператора ($max_weight кг)!";
+                } else {
+                    $cost = $carrier['base_cost'] 
+                          + $weight * $carrier['cost_per_kg'] 
+                          + $distance * $carrier['cost_per_km'];
+
+                    if ($insurance) $cost *= 1.02; // Remove gabarit and speed cost calculations
+                    if ($type === 'letter') $cost = max($cost, 2.5);
+
+                    $cost = round($cost, 2);
+                    $hours = round($base_hours, 1);
+
+                    $result = [
+                        'carrier' => $carrier,
                     'cost' => $cost,
                     'hours' => $hours,
                     'distance' => $distance
@@ -248,40 +257,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $from = (int)$_POST['from'];
         $to = (int)$_POST['to'];
         
+        // Debug: Log the from and to office IDs to understand the issue
+        error_log("Starting comparison for route from office $from to office $to");
+        
         $all_results = [];
         foreach($carriers as $c) {
-            $pathData = dijkstra($graph, $from, $to);
-            if ($pathData) {
-                $distance = $pathData['distance'];
-                $base_hours = $distance / $c['speed_kmh'];
+            // Check if both from and to offices belong to this carrier
+            $checkSql = "SELECT id FROM offices WHERE id IN (?, ?) AND carrier_id = ?";
+            $checkStmt = $db->prepare($checkSql);
+            $checkStmt->execute([$from, $to, $c['id']]);
+            $matchingOffices = $checkStmt->fetchAll();
+            
+            error_log("Carrier {$c['id']} ({$c['name']}) has " . count($matchingOffices) . " matching offices out of 2 needed");
+            
+            // Only consider this carrier if both offices belong to it
+            if (count($matchingOffices) == 2) {
+                $pathData = dijkstra($graph, $from, $to);
+                if ($pathData) {
+                    $distance = $pathData['distance'];
+                    $base_hours = $distance / $c['speed_kmh'];
 
-                $type = $_POST['package_type'];
-                $insurance = isset($_POST['insurance']);
+                    $type = $_POST['package_type'];
+                    $insurance = isset($_POST['insurance']);
 
-                $weight = $type === 'letter' 
-                    ? 0.02 * (int)($_POST['letter_count'] ?? 1)
-                    : max((float)$_POST['weight'], 0); // Removed volume weight calculation since gabarit is removed
+                    $weight = $type === 'letter' 
+                        ? 0.02 * (int)($_POST['letter_count'] ?? 1)
+                        : max((float)$_POST['weight'], 0); // Removed volume weight calculation since gabarit is removed
 
-                $max_weight = $c['max_weight']; // Removed gabarit-based weight increase
+                    $max_weight = $c['max_weight']; // Removed gabarit-based weight increase
 
-                if ($weight <= $max_weight) {
-                    $cost = $c['base_cost'] 
-                          + $weight * $c['cost_per_kg'] 
-                          + $distance * $c['cost_per_km'];
+                    if ($weight <= $max_weight) {
+                        $cost = $c['base_cost'] 
+                              + $weight * $c['cost_per_kg'] 
+                              + $distance * $c['cost_per_km'];
 
-                    if ($insurance) $cost *= 1.02; // Removed gabarit and speed cost calculations
-                    if ($type === 'letter') $cost = max($cost, 2.5);
+                        if ($insurance) $cost *= 1.02; // Removed gabarit and speed cost calculations
+                        if ($type === 'letter') $cost = max($cost, 2.5);
 
-                    $cost = round($cost, 2);
-                    $hours = round($base_hours, 1);
+                        $cost = round($cost, 2);
+                        $hours = round($base_hours, 1);
 
-                    $all_results[] = [
-                        'carrier' => $c,
-                        'cost' => $cost,
-                        'hours' => $hours,
-                        'distance' => $distance
-                    ];
+                        $all_results[] = [
+                            'carrier' => $c,
+                            'cost' => $cost,
+                            'hours' => $hours,
+                            'distance' => $distance
+                        ];
+                        
+                        error_log("Added carrier {$c['id']} to comparison results with cost: $cost, distance: $distance km");
+                    } else {
+                        error_log("Weight {$weight}kg exceeds max weight {$max_weight}kg for carrier {$c['id']}");
+                    }
+                } else {
+                    // Debug: Add logging to understand why routes aren't found
+                    error_log("No route found in dijkstra algorithm for offices $from to $to");
+                    // Additional debug: check if nodes exist in the graph
+                    $hasFromNode = isset($graph[$from]);
+                    $hasToNode = isset($graph[$to]);
+                    error_log("Graph has from node ($from): " . ($hasFromNode ? 'YES' : 'NO'));
+                    error_log("Graph has to node ($to): " . ($hasToNode ? 'YES' : 'NO'));
                 }
+            } else {
+                // Debug: This carrier doesn't service both offices
+                error_log("Carrier {$c['id']} does not service both offices $from and $to - only " . count($matchingOffices) . " of 2 offices match");
             }
         }
         

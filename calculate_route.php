@@ -28,7 +28,7 @@ try {
     }
     
     // Get coordinates for both offices
-    $stmt = $pdo->prepare("SELECT id, city, address, lat, lng, carrier_id FROM offices WHERE id = ? OR id = ?");
+    $stmt = $db->prepare("SELECT id, city, address, lat, lng, carrier_id FROM offices WHERE id = ? OR id = ?");
     $stmt->execute([$fromOfficeId, $toOfficeId]);
     $offices = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -56,7 +56,7 @@ try {
     }
     
     // Get carrier info for cost calculation
-    $stmt = $pdo->prepare("SELECT base_cost, cost_per_km, cost_per_kg, speed_kmh FROM carriers WHERE id = ?");
+    $stmt = $db->prepare("SELECT base_cost, cost_per_km, cost_per_kg, speed_kmh FROM carriers WHERE id = ?");
     $stmt->execute([$fromOffice['carrier_id']]);
     $carrier = $stmt->fetch(PDO::FETCH_ASSOC);
     
