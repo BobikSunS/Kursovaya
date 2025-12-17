@@ -256,33 +256,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $base_hours = $distance / $c['speed_kmh'];
 
                 $type = $_POST['package_type'];
-                $gabarit = $_POST['gabarit'] ?? 'small';
-                $speed = $_POST['delivery_speed'] ?? 'standard';
                 $insurance = isset($_POST['insurance']);
-
-                $volume_weight = 0;
-                if ($type === 'parcel') {
-                    if ($gabarit === 'medium') $volume_weight = 8;
-                    if ($gabarit === 'large') $volume_weight = 20;
-                }
 
                 $weight = $type === 'letter' 
                     ? 0.02 * (int)($_POST['letter_count'] ?? 1)
-                    : max((float)$_POST['weight'], $volume_weight);
+                    : max((float)$_POST['weight'], 0); // Removed volume weight calculation since gabarit is removed
 
-                $max_weight = $c['max_weight'];
-                if ($gabarit === 'medium') $max_weight += 8;
-                if ($gabarit === 'large') $max_weight += 20;
+                $max_weight = $c['max_weight']; // Removed gabarit-based weight increase
 
                 if ($weight <= $max_weight) {
                     $cost = $c['base_cost'] 
                           + $weight * $c['cost_per_kg'] 
                           + $distance * $c['cost_per_km'];
 
-                    if ($gabarit === 'medium') $cost += 6;
-                    if ($gabarit === 'large') $cost += 15;
-                    if ($speed === 'express') { $cost *= 1.25; $base_hours *= 0.7; }
-                    if ($insurance) $cost *= 1.02;
+                    if ($insurance) $cost *= 1.02; // Removed gabarit and speed cost calculations
                     if ($type === 'letter') $cost = max($cost, 2.5);
 
                     $cost = round($cost, 2);
@@ -319,9 +306,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="card-header bg-secondary text-white">
             <h4>Сравнение операторов</h4>
             <div class="btn-group" role="group">
-                <a href="?filter=all&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&gabarit=<?= $_POST['gabarit'] ?? $_GET['gabarit'] ?? 'small' ?>&delivery_speed=<?= $_POST['delivery_speed'] ?? $_GET['delivery_speed'] ?? 'standard' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'all' ? 'btn-primary' : 'btn-outline-light' ?>">Все</a>
-                <a href="?filter=cheapest&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&gabarit=<?= $_POST['gabarit'] ?? $_GET['gabarit'] ?? 'small' ?>&delivery_speed=<?= $_POST['delivery_speed'] ?? $_GET['delivery_speed'] ?? 'standard' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'cheapest' ? 'btn-success' : 'btn-outline-light' ?>">Самый дешевый</a>
-                <a href="?filter=fastest&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&gabarit=<?= $_POST['gabarit'] ?? $_GET['gabarit'] ?? 'small' ?>&delivery_speed=<?= $_POST['delivery_speed'] ?? $_GET['delivery_speed'] ?? 'standard' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'fastest' ? 'btn-info' : 'btn-outline-light' ?>">Самый быстрый</a>
+                <a href="?filter=all&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'all' ? 'btn-primary' : 'btn-outline-light' ?>">Все</a>
+                <a href="?filter=cheapest&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'cheapest' ? 'btn-success' : 'btn-outline-light' ?>">Самый дешевый</a>
+                <a href="?filter=fastest&carrier=<?= $_POST['carrier'] ?? $_GET['carrier'] ?? '' ?>&from=<?= $_POST['from'] ?? $_GET['from'] ?? '' ?>&to=<?= $_POST['to'] ?? $_GET['to'] ?? '' ?>&package_type=<?= $_POST['package_type'] ?? $_GET['package_type'] ?? '' ?>&weight=<?= $_POST['weight'] ?? $_GET['weight'] ?? ($_POST['package_type'] === 'letter' ? ($_POST['letter_count'] ?? $_GET['letter_count'] ?? 1) * 0.02 : '') ?>&letter_count=<?= $_POST['letter_count'] ?? $_GET['letter_count'] ?? '' ?>&insurance=<?= isset($_POST['insurance']) || isset($_GET['insurance']) ? '1' : '0' ?>" class="btn btn-sm <?= $active_filter === 'fastest' ? 'btn-info' : 'btn-outline-light' ?>">Самый быстрый</a>
             </div>
         </div>
         <div class="card-body">
@@ -555,7 +542,6 @@ function toggleFields(type) {
     const isLetter = type === 'letter';
     document.getElementById('weight-div').style.display = isLetter ? 'none' : 'block';
     document.getElementById('letter-div').style.display = isLetter ? 'block' : 'none';
-    document.getElementById('gabarit-div').style.display = isLetter ? 'none' : 'block';
 }
 
 // Initialize search for select elements when DOM is loaded if carrier is already selected
